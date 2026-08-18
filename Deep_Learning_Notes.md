@@ -902,6 +902,204 @@ CNNs also work on anything with spatial/sequential structure: audio (spectrogram
 
 ---
 
+## 14. RNNs, LSTM & GRU (Sequence Models)
+
+### Why RNNs Exist (The Problem)
+
+CNNs are great for images, but what about **sequences** — text, speech, time series, stock prices? In sequences, **order matters** ("dog bites man" ≠ "man bites dog") and each item depends on what came before.
+
+A regular neural network has no memory — it treats each input independently. It can't remember the previous word while reading the current one. We need something with **memory**.
+
+### The Core Idea — A Loop That Remembers
+
+An **RNN (Recurrent Neural Network)** processes a sequence one step at a time, carrying a **hidden state** ("memory") forward from each step to the next.
+
+```
+        word1      word2      word3
+          │          │          │
+          ▼          ▼          ▼
+        [RNN] ───► [RNN] ───► [RNN] ───► output
+          │          │          │
+       memory ───► memory ───► memory
+       (passes what it learned forward)
+```
+
+At each step, the RNN combines the **current input** with the **memory from the previous step** to produce a new memory and an output. This is the "recurrent" loop.
+
+<b>Analogy:</b> Reading a sentence word by word while keeping a running summary in your head. Each new word updates your understanding based on everything you've read so far.
+
+### The Big Problem with Plain RNNs
+
+RNNs struggle with **long-term memory**. Because of the vanishing gradient problem (multiplying small numbers across many time steps), by the time the RNN reaches the end of a long sentence, it has **forgotten the beginning**.
+
+```
+"The cat, which grew up on a farm surrounded by many animals, ... was ___"
+   ▲                                                              ▲
+   remember this...                                    ...to fill this (hard!)
+```
+
+Plain RNNs can only remember a few steps back. This is the vanishing gradient problem applied to time.
+
+### LSTM (Long Short-Term Memory) — RNN With Smart Memory
+
+LSTM fixes the forgetting problem using a **cell state** (a long-term memory conveyor belt) controlled by three **gates**:
+
+| Gate | Job |
+|---|---|
+| **Forget gate** | Decides what to REMOVE from memory ("this info is no longer relevant") |
+| **Input gate** | Decides what NEW info to ADD to memory |
+| **Output gate** | Decides what to OUTPUT from memory right now |
+
+```
+         ┌─────────── Cell State (long-term memory) ───────────►
+         │      ▲              ▲                ▲
+      forget   input        (update)         output
+       gate    gate                           gate
+         │      │                              │
+         └──────┴────────── input + prev memory┘
+```
+
+<b>Analogy:</b> A smart notebook. The forget gate erases outdated notes, the input gate writes down important new info, and the output gate decides what to read out right now. This lets it remember important things over long sequences.
+
+### GRU (Gated Recurrent Unit) — Simpler, Faster LSTM
+
+GRU is a streamlined LSTM with only **two gates** (reset and update) instead of three, and no separate cell state. It's faster to train and often performs just as well.
+
+```
+LSTM: 3 gates, more powerful, slower
+GRU:  2 gates, simpler, faster, similar performance
+```
+
+### Comparison
+
+| Model | Memory | Gates | Note |
+|---|---|---|---|
+| **RNN** | Short-term | None | Forgets long-range info (vanishing gradient) |
+| **LSTM** | Long-term | 3 (forget, input, output) | Handles long sequences well |
+| **GRU** | Long-term | 2 (reset, update) | Simpler & faster than LSTM |
+
+### What Sequence Models Are Used For
+
+- **Text:** translation, sentiment analysis, text generation
+- **Speech:** speech-to-text, voice assistants
+- **Time series:** stock prediction, weather forecasting, sales forecasting
+
+### The Modern Twist — Transformers Replaced RNNs
+
+RNNs/LSTMs process sequences **one step at a time** (slow, can't parallelize) and still struggle with very long dependencies. **Transformers** (see the separate Transformers notes) fixed this using **attention** — processing the whole sequence at once and letting every word directly attend to every other word. Transformers now dominate NLP (BERT, GPT). But LSTMs are still used where data is limited or streaming.
+
+---
+
+## 15. Regularization in Deep Learning (Preventing Overfitting)
+
+Deep networks have millions of weights → they overfit VERY easily (memorize training data). Regularization keeps them general. These are the main techniques.
+
+### 1. Dropout — The Star Technique
+
+During training, **randomly "turn off" a fraction of neurons** (e.g., 50%) on each pass. The network can't rely on any single neuron, so it learns robust, redundant features.
+
+```
+Normal:              With Dropout (some neurons off):
+  (o)(o)(o)            (o)( )(o)
+  (o)(o)(o)    ───►    ( )(o)( )     ← randomly dropped each step
+  (o)(o)(o)            (o)( )(o)
+```
+
+<b>Analogy:</b> A sports team that practices with random players sitting out — everyone learns to contribute, so the team isn't dependent on one star player.
+
+- Only active during **training**; at test time all neurons are used.
+- Typical dropout rate: 0.2–0.5.
+
+### 2. Batch Normalization
+
+Normalizes the inputs to each layer (rescales them to a stable mean/variance) during training.
+- **Speeds up training** (allows higher learning rates).
+- **Stabilizes** training and reduces vanishing/exploding gradients.
+- Has a mild **regularizing** effect too.
+
+### 3. Early Stopping
+
+Watch the **validation loss** during training. When it stops improving (and starts rising = overfitting begins), **stop training** — even if training loss is still dropping.
+
+```
+Loss
+  │  \                    training loss (keeps dropping)
+  │   \___
+  │       \____
+  │   \        \______
+  │    \__          validation loss (starts rising → STOP here)
+  │       \___    __/
+  │           \__/  ↑ early stop point
+  └────────────────────── epochs →
+```
+
+### 4. L1 / L2 Regularization (Weight Decay)
+
+Same idea as in ML — add a penalty for large weights to the loss. In DL, L2 is called **weight decay** and is very common.
+
+### 5. Data Augmentation
+
+Artificially create more training data by transforming existing samples — for images: flip, rotate, crop, zoom, adjust brightness. More varied data = less overfitting.
+
+```
+1 cat photo → flipped, rotated, cropped, brightened → 5 training images
+```
+
+### Quick Summary
+
+| Technique | What it does |
+|---|---|
+| **Dropout** | Randomly disables neurons → robust features |
+| **Batch Norm** | Normalizes layer inputs → stable, faster training |
+| **Early Stopping** | Stop when validation loss rises |
+| **L1/L2 (weight decay)** | Penalize large weights |
+| **Data Augmentation** | Create more varied training data |
+
+---
+
+## 16. Transfer Learning
+
+### The Core Idea
+
+Instead of training a huge network from scratch (needs massive data + compute + time), take a model **already trained on a giant dataset** and **fine-tune it** for your specific task.
+
+```
+Pre-trained model (learned general features from millions of images)
+        │
+        ▼  keep the early layers (they know edges, shapes, textures)
+        │
+   replace/retrain the last layers for YOUR task
+        │
+        ▼
+   Your specialized model (trained with little data, fast)
+```
+
+<b>Analogy:</b> Someone who already speaks English can learn Spanish much faster than a baby learning to talk from zero. The pre-trained model already "knows" general features; you just teach it your specific task.
+
+### Why It Works
+
+Early layers of a network learn **general features** (edges, textures, shapes for images; grammar/word meaning for text) that are useful for almost ANY task. Only the later layers are task-specific. So we reuse the general part and only retrain the specific part.
+
+### Two Main Approaches
+
+1. **Feature extraction** — freeze the pre-trained layers (don't change them), only train a new final layer for your task. Fast, needs little data.
+2. **Fine-tuning** — unfreeze some of the later pre-trained layers and train them (slowly) along with your new layer. More powerful when you have moderate data.
+
+### Real Examples
+
+- **Images:** take a pre-trained **ImageNet** model (ResNet, VGG, **EfficientNet**) and fine-tune for your specific images. (This is exactly what you did in your Aadhaar project with EfficientNet-B0 for deepfake detection.)
+- **Text:** take pre-trained **BERT** and fine-tune it for sentiment analysis or your classification task.
+
+### Why It's a Big Deal
+
+- Needs **far less data** (hundreds instead of millions of examples).
+- Trains **much faster** (minutes/hours instead of days).
+- Often gives **better accuracy** than training from scratch.
+
+This is why almost nobody trains large models from scratch anymore — they start from a pre-trained one.
+
+---
+
 ## Quick Reference — Whole Deep Learning Map
 
 ### Core Building Blocks
@@ -931,5 +1129,8 @@ CNNs also work on anything with spatial/sequential structure: audio (spectrogram
 | Regression output | Linear (no activation) + MSE |
 | Default optimizer | Adam |
 | Image data | CNN |
+| Sequence/text data | RNN → LSTM/GRU → Transformer (modern) |
 | Fix vanishing gradient | ReLU + good init + BatchNorm + ResNet |
+| Prevent overfitting | Dropout + Early Stopping + Data Augmentation + Weight Decay |
+| Little data / fast training | Transfer Learning (fine-tune a pre-trained model) |
 | Need explainability | White box (or SHAP/LIME on black box) |

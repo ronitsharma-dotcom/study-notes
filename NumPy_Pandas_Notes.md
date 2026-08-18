@@ -1,225 +1,290 @@
-# NumPy & Pandas — Complete Revision Notes
+# NumPy & Pandas — The Easy Version (with Examples for Everything)
 
-> Two libraries in one file. NumPy first (foundations), then Pandas (built on NumPy).
+> Every concept has a runnable example AND its output shown as a comment (`# →`). Read it, picture the output, and you'll remember it. NumPy first (foundation), then Pandas (built on NumPy).
 
 ---
 
 # PART 1: NumPy
 
-## 1. What is NumPy?
+## 1. What is NumPy and why use it?
 
-- **Numerical Python** — fast N-dimensional array operations in C under the hood.
-- The core object is `ndarray` — a fixed-type, fixed-size, multidimensional array.
-- **Why it's fast:** contiguous memory layout + vectorized operations (no Python loops).
+**NumPy** = Numerical Python. It gives you a super-fast array object called `ndarray` for doing math on lots of numbers at once.
+
+**Why not just use Python lists?**
+- Lists are slow for math (Python loops are slow).
+- NumPy does operations in C under the hood → 10-100x faster.
+- NumPy lets you do "vectorized" operations — apply math to a whole array in one line, no loops.
 
 ```python
 import numpy as np
+
+# The problem with lists:
+my_list = [1, 2, 3, 4]
+# my_list * 2  → [1,2,3,4,1,2,3,4]  (repeats, NOT what we want!)
+
+# NumPy does real math:
+arr = np.array([1, 2, 3, 4])
+print(arr * 2)
+# → [2 4 6 8]   (multiplies each element — this is what we want!)
 ```
 
 ---
 
-## 2. Creating Arrays
+## 2. Creating Arrays (many ways)
 
 ```python
-# From lists
-a = np.array([1, 2, 3])              # 1D: shape (3,)
-b = np.array([[1,2,3],[4,5,6]])       # 2D: shape (2,3)
+import numpy as np
 
-# Zeros, Ones, Full
-np.zeros((3, 4))         # 3x4 array of 0.0
-np.ones((2, 3))          # 2x3 array of 1.0
-np.full((2, 2), 7)       # 2x2 array of 7
+# From a Python list
+a = np.array([1, 2, 3])
+print(a)              # → [1 2 3]
 
-# Range/Linspace
-np.arange(0, 10, 2)      # [0, 2, 4, 6, 8]  (start, stop, step)
-np.linspace(0, 1, 5)     # [0.0, 0.25, 0.5, 0.75, 1.0]  (5 evenly spaced)
+# 2D array (matrix) from list of lists
+b = np.array([[1, 2, 3], [4, 5, 6]])
+print(b)
+# → [[1 2 3]
+#    [4 5 6]]
 
-# Identity & Random
-np.eye(3)                # 3x3 identity matrix
-np.random.rand(3, 4)     # 3x4 uniform [0,1)
-np.random.randn(3, 4)    # 3x4 standard normal
-np.random.randint(0, 10, size=(3, 3))  # 3x3 random ints [0,10)
+# Array of all zeros (give it the shape)
+print(np.zeros((2, 3)))
+# → [[0. 0. 0.]
+#    [0. 0. 0.]]
+
+# Array of all ones
+print(np.ones((2, 2)))
+# → [[1. 1.]
+#    [1. 1.]]
+
+# Array filled with a specific value
+print(np.full((2, 2), 7))
+# → [[7 7]
+#    [7 7]]
+
+# Range of numbers (like Python's range, but an array)
+print(np.arange(0, 10, 2))    # start, stop, step
+# → [0 2 4 6 8]
+
+# Evenly spaced numbers between two points
+print(np.linspace(0, 1, 5))   # 5 numbers from 0 to 1
+# → [0.   0.25 0.5  0.75 1.  ]
+
+# Identity matrix (1s on the diagonal)
+print(np.eye(3))
+# → [[1. 0. 0.]
+#    [0. 1. 0.]
+#    [0. 0. 1.]]
+
+# Random numbers
+print(np.random.rand(2, 2))       # uniform between 0 and 1
+print(np.random.randn(2, 2))      # standard normal (mean 0, std 1)
+print(np.random.randint(1, 10, size=(2, 3)))  # random ints 1-9
 ```
 
 ---
 
-## 3. Array Properties
+## 3. Array Properties (know your array)
 
 ```python
-a = np.array([[1,2,3],[4,5,6]])
+a = np.array([[1, 2, 3], [4, 5, 6]])
 
-a.shape      # (2, 3) — rows x cols
-a.ndim       # 2 — number of dimensions
-a.size       # 6 — total elements
-a.dtype      # int64 (or float64, etc.)
-a.itemsize   # 8 bytes per element
-a.nbytes     # 48 total bytes (6 * 8)
+print(a.shape)     # → (2, 3)   — 2 rows, 3 columns
+print(a.ndim)      # → 2        — number of dimensions
+print(a.size)      # → 6        — total number of elements
+print(a.dtype)     # → int64    — data type of elements
+print(len(a))      # → 2        — number of rows (first dimension)
 ```
+
+**Tip:** `shape` is the MOST used property. `(rows, columns)` for 2D.
 
 ---
 
-## 4. Indexing & Slicing
+## 4. Indexing & Slicing (grabbing pieces)
 
 ```python
-a = np.array([[1,2,3],[4,5,6],[7,8,9]])
+a = np.array([10, 20, 30, 40, 50])
 
-# Basic indexing
-a[0, 0]       # 1
-a[1, 2]       # 6
-a[-1, -1]     # 9
+# Single element (indexing starts at 0)
+print(a[0])       # → 10
+print(a[-1])      # → 50  (last element)
 
-# Slicing [row_start:row_end, col_start:col_end]
-a[0:2, :]     # first 2 rows, all cols → [[1,2,3],[4,5,6]]
-a[:, 1]       # all rows, col 1 → [2, 5, 8]
-a[1:, :2]     # rows 1+, first 2 cols → [[4,5],[7,8]]
-
-# Boolean indexing (VERY common)
-a[a > 5]      # [6, 7, 8, 9] — flat array of elements matching condition
-a[a % 2 == 0] # [2, 4, 6, 8]
-
-# Fancy indexing (index with array)
-a[[0, 2], :]  # rows 0 and 2
+# Slicing [start:stop]  (stop is excluded)
+print(a[1:4])     # → [20 30 40]  (index 1, 2, 3)
+print(a[:3])      # → [10 20 30]  (first 3)
+print(a[2:])      # → [30 40 50]  (from index 2 to end)
+print(a[::2])     # → [10 30 50]  (every 2nd element)
 ```
 
-> **Key:** NumPy slicing returns a **view** (not a copy). Modifying the slice modifies the original! Use `.copy()` to avoid this.
-
----
-
-## 5. Reshaping
+### 2D indexing — `array[row, column]`
 
 ```python
-a = np.arange(12)         # [0,1,2,...,11]
+b = np.array([[1, 2, 3],
+              [4, 5, 6],
+              [7, 8, 9]])
 
-a.reshape(3, 4)           # 3x4 matrix (total elements must match)
-a.reshape(2, -1)          # 2x6 (-1 = auto-calculate)
-a.reshape(-1, 1)          # column vector (12x1)
+print(b[0, 0])    # → 1   (row 0, column 0)
+print(b[1, 2])    # → 6   (row 1, column 2)
+print(b[0])       # → [1 2 3]   (entire row 0)
+print(b[:, 1])    # → [2 5 8]   (entire column 1 — ':' means all rows)
+print(b[0:2, 1:3])
+# → [[2 3]
+#    [5 6]]   (rows 0-1, columns 1-2)
+```
 
-a.flatten()               # returns a COPY as 1D
-a.ravel()                 # returns a VIEW as 1D (faster)
+### Boolean Indexing (VERY common — filtering)
 
-# Transpose
-b = np.array([[1,2,3],[4,5,6]])
-b.T                       # shape (3,2)
+```python
+a = np.array([10, 25, 30, 45, 50])
 
-# Adding a dimension
-a = np.array([1,2,3])     # shape (3,)
-a[np.newaxis, :]          # shape (1,3) — row vector
-a[:, np.newaxis]          # shape (3,1) — column vector
+# Create a condition → gives True/False array
+print(a > 30)          # → [False False False  True  True]
+
+# Use it to filter (keep only elements where True)
+print(a[a > 30])       # → [45 50]
+
+# Multiple conditions (use & for AND, | for OR — with parentheses!)
+print(a[(a > 20) & (a < 50)])   # → [25 30 45]
+```
+
+> ⚠️ Slicing returns a **view** (a window into the original), not a copy. Changing the slice changes the original. Use `.copy()` if you want an independent copy.
+
+---
+
+## 5. Reshaping (changing the shape)
+
+```python
+a = np.arange(12)     # → [0 1 2 3 4 5 6 7 8 9 10 11]
+
+# Reshape to 3 rows x 4 columns
+print(a.reshape(3, 4))
+# → [[ 0  1  2  3]
+#    [ 4  5  6  7]
+#    [ 8  9 10 11]]
+
+# Use -1 to let NumPy figure out one dimension
+print(a.reshape(2, -1))    # 2 rows, auto columns (6)
+# → [[ 0  1  2  3  4  5]
+#    [ 6  7  8  9 10 11]]
+
+# Flatten a 2D array back to 1D
+b = np.array([[1, 2], [3, 4]])
+print(b.flatten())     # → [1 2 3 4]
+
+# Transpose (rows become columns)
+print(b.T)
+# → [[1 3]
+#    [2 4]]
 ```
 
 ---
 
-## 6. Operations (Vectorized — no loops!)
+## 6. Vectorized Operations (math without loops)
+
+This is NumPy's superpower — do math on the whole array at once.
 
 ```python
 a = np.array([1, 2, 3, 4])
 b = np.array([10, 20, 30, 40])
 
-# Element-wise arithmetic
-a + b       # [11, 22, 33, 44]
-a * b       # [10, 40, 90, 160]
-a ** 2      # [1, 4, 9, 16]
-a / b       # [0.1, 0.1, 0.1, 0.1]
+# Element-wise arithmetic (matches position by position)
+print(a + b)      # → [11 22 33 44]
+print(b - a)      # → [ 9 18 27 36]
+print(a * b)      # → [ 10  40  90 160]
+print(b / a)      # → [10. 10. 10. 10.]
+print(a ** 2)     # → [ 1  4  9 16]
 
-# Scalar broadcasting
-a * 5       # [5, 10, 15, 20]
-a + 100     # [101, 102, 103, 104]
+# Operate with a single number (broadcasting)
+print(a + 100)    # → [101 102 103 104]
+print(a * 10)     # → [10 20 30 40]
 
-# Universal functions (ufuncs)
-np.sqrt(a)        # [1.0, 1.41, 1.73, 2.0]
-np.exp(a)         # e^1, e^2, e^3, e^4
-np.log(a)         # natural log
-np.sin(a)
-np.abs(a)
-np.maximum(a, b)  # element-wise max
+# Math functions (applied to every element)
+print(np.sqrt(a))     # → [1.   1.41 1.73 2.  ]
+print(np.exp(a))      # → [ 2.71  7.38 20.08 54.6 ]
+print(np.log(a))      # → [0.   0.69 1.09 1.38]
 ```
 
 ---
 
-## 7. Aggregations
+## 7. Aggregations (summarizing numbers)
 
 ```python
-a = np.array([[1,2,3],[4,5,6]])
+a = np.array([[1, 2, 3],
+              [4, 5, 6]])
 
-a.sum()            # 21 (all elements)
-a.sum(axis=0)      # [5, 7, 9] (sum each column — collapse rows)
-a.sum(axis=1)      # [6, 15] (sum each row — collapse cols)
-
-a.mean()           # 3.5
-a.std()            # standard deviation
-a.min()            # 1
-a.max()            # 6
-a.argmin()         # 0 (index of min)
-a.argmax()         # 5 (index of max)
-np.median(a)       # 3.5
-np.percentile(a, 75)  # 75th percentile
+print(a.sum())        # → 21   (sum of everything)
+print(a.mean())       # → 3.5  (average)
+print(a.min())        # → 1
+print(a.max())        # → 6
+print(a.std())        # → 1.7  (standard deviation)
+print(a.argmax())     # → 5    (index of max, counting flattened)
+print(a.argmin())     # → 0    (index of min)
 ```
 
-> **axis=0** = operate along rows (result per column). **axis=1** = operate along columns (result per row). Think: "collapse that axis."
+### The `axis` argument (super important, often confusing)
+
+- **axis=0** → go DOWN the columns (collapse rows) → one result per column
+- **axis=1** → go ACROSS the rows (collapse columns) → one result per row
+
+```python
+a = np.array([[1, 2, 3],
+              [4, 5, 6]])
+
+print(a.sum(axis=0))   # → [5 7 9]   (1+4, 2+5, 3+6 — sum each column)
+print(a.sum(axis=1))   # → [6 15]    (1+2+3, 4+5+6 — sum each row)
+```
+
+**Memory trick:** axis=0 points down ↓ (collapses rows), axis=1 points right → (collapses columns).
 
 ---
 
-## 8. Broadcasting
+## 8. Broadcasting (auto-stretching shapes)
 
-NumPy's way of operating on arrays of different shapes **without copying data**.
-
-**Rules:**
-1. If ndims differ, pad the smaller shape with 1s on the left.
-2. Dimensions are compatible if they're equal OR one of them is 1.
-3. The size-1 dimension is "stretched" to match.
+Broadcasting lets NumPy do math between arrays of **different shapes** by automatically "stretching" the smaller one.
 
 ```python
-a = np.array([[1,2,3],    # shape (2,3)
-              [4,5,6]])
-b = np.array([10,20,30])  # shape (3,) → broadcast to (2,3)
+# A 2x3 matrix + a 1D array of 3 elements
+a = np.array([[1, 2, 3],
+              [4, 5, 6]])
+b = np.array([10, 20, 30])
 
-a + b  # [[11,22,33],[14,25,36]]
-
-# Column operation
-col = np.array([[100],[200]])  # shape (2,1)
-a + col  # [[101,102,103],[204,205,206]]
+print(a + b)
+# → [[11 22 33]
+#    [14 25 36]]
+# b was "stretched" to both rows automatically
 ```
+
+**Rule of thumb:** shapes are compatible if the dimensions are equal OR one of them is 1. The size-1 dimension gets stretched.
 
 ---
 
-## 9. Linear Algebra
+## 9. Useful NumPy functions
 
 ```python
-a = np.array([[1,2],[3,4]])
-b = np.array([[5,6],[7,8]])
+a = np.array([3, 1, 2, 1, 3])
 
-np.dot(a, b)        # matrix multiply (or a @ b)
-a @ b               # same — preferred syntax
+# Sort
+print(np.sort(a))            # → [1 1 2 3 3]
 
-np.linalg.inv(a)           # inverse
-np.linalg.det(a)           # determinant
-np.linalg.eig(a)           # eigenvalues & eigenvectors
-np.linalg.norm(a)          # Frobenius norm
-np.linalg.solve(a, b)      # solve Ax = b
-```
+# Unique values
+print(np.unique(a))          # → [1 2 3]
 
----
+# where — conditional selection (like if-else)
+print(np.where(a > 2, "big", "small"))
+# → ['big' 'small' 'small' 'small' 'big']
 
-## 10. Common Patterns
+# Stacking arrays
+x = np.array([1, 2])
+y = np.array([3, 4])
+print(np.vstack([x, y]))     # stack vertically
+# → [[1 2]
+#    [3 4]]
+print(np.hstack([x, y]))     # stack horizontally
+# → [1 2 3 4]
 
-```python
-# Where (conditional select)
-np.where(a > 2, a, 0)   # keep elements > 2, replace rest with 0
+# Concatenate
+print(np.concatenate([x, y]))   # → [1 2 3 4]
 
-# Sorting
-np.sort(a, axis=1)       # sort each row
-np.argsort(a)            # indices that would sort
-
-# Unique
-np.unique([1,1,2,3,3])   # [1, 2, 3]
-
-# Stacking
-np.vstack([a, a])        # vertical stack
-np.hstack([a, a])        # horizontal stack
-np.concatenate([a, a], axis=0)  # general concat
-
-# Copying
-b = a.copy()             # true copy, independent
+# Copy (independent, not a view)
+b = a.copy()
 ```
 
 ---
@@ -228,9 +293,11 @@ b = a.copy()             # true copy, independent
 
 ## 1. What is Pandas?
 
-- **Panel Data** library — built on NumPy for structured/tabular data.
-- Two core objects: **Series** (1D) and **DataFrame** (2D table).
-- Think of DataFrame as an Excel sheet or SQL table in Python.
+**Pandas** = library for working with **tables of data** (rows and columns), like an Excel sheet or SQL table in Python. Built on top of NumPy.
+
+Two main objects:
+- **Series** = a single column (1D)
+- **DataFrame** = a full table (2D)
 
 ```python
 import pandas as pd
@@ -238,43 +305,55 @@ import pandas as pd
 
 ---
 
-## 2. Series (1D labeled array)
+## 2. Series (a single column)
+
+A Series is a 1D labeled array — values + an index (labels).
 
 ```python
+import pandas as pd
+
 s = pd.Series([10, 20, 30, 40], index=["a", "b", "c", "d"])
+print(s)
+# → a    10
+#   b    20
+#   c    30
+#   d    40
+#   dtype: int64
 
-s["b"]          # 20
-s[1]            # 20 (positional)
-s[s > 15]       # b:20, c:30, d:40
-
-s.values        # numpy array: [10,20,30,40]
-s.index         # Index(['a','b','c','d'])
-s.dtype         # int64
-s.mean()        # 25.0
+print(s["b"])         # → 20   (access by label)
+print(s[0])           # → 10   (access by position)
+print(s.mean())       # → 25.0
+print(s[s > 15])      # → b:20, c:30, d:40  (filtering)
 ```
 
 ---
 
-## 3. DataFrame — Creation
+## 3. Creating a DataFrame (the main table)
 
 ```python
-# From dict
+import pandas as pd
+
+# From a dictionary (keys = column names)
 df = pd.DataFrame({
-    "name": ["Alice", "Bob", "Charlie"],
-    "age": [25, 30, 35],
-    "salary": [50000, 60000, 70000]
+    "name": ["Alice", "Bob", "Charlie", "David"],
+    "age": [25, 30, 35, 28],
+    "dept": ["AI", "Data", "AI", "HR"],
+    "salary": [50000, 60000, 70000, 45000]
 })
+print(df)
+# →      name  age  dept  salary
+#   0   Alice   25    AI   50000
+#   1     Bob   30  Data   60000
+#   2 Charlie   35    AI   70000
+#   3   David   28    HR   45000
 
-# From list of dicts
-data = [{"name": "Alice", "age": 25}, {"name": "Bob", "age": 30}]
-df = pd.DataFrame(data)
-
-# From CSV (most common)
+# From a CSV file (most common in real life)
 df = pd.read_csv("data.csv")
-df = pd.read_csv("data.csv", dtype=str, keep_default_na=False)
 
-# From Excel
-df = pd.read_excel("data.xlsx", sheet_name="Sheet1")
+# Reading with useful options
+df = pd.read_csv("data.csv",
+                 dtype=str,               # read everything as string
+                 keep_default_na=False)   # don't convert empty to NaN
 ```
 
 ---
@@ -282,323 +361,430 @@ df = pd.read_excel("data.xlsx", sheet_name="Sheet1")
 ## 4. Exploring Data (first things you do)
 
 ```python
-df.head(5)          # first 5 rows
-df.tail(3)          # last 3 rows
-df.shape            # (rows, cols)
-df.columns          # column names
-df.dtypes           # dtype of each column
-df.info()           # column names, non-null counts, dtypes
-df.describe()       # count, mean, std, min, 25%, 50%, 75%, max (numeric cols)
-df.nunique()        # unique values per column
-df.isnull().sum()   # null count per column
-df.value_counts("column")  # frequency counts
+df.head()          # first 5 rows
+df.head(3)         # first 3 rows
+df.tail(2)         # last 2 rows
+
+df.shape           # → (4, 4)   — (rows, columns)
+df.columns         # → Index(['name', 'age', 'dept', 'salary'])
+df.dtypes          # data type of each column
+df.info()          # summary: columns, non-null counts, types
+df.describe()      # stats (count, mean, std, min, max...) for numeric columns
+
+df["dept"].nunique()          # → 3   (number of unique departments)
+df["dept"].unique()           # → ['AI' 'Data' 'HR']
+df["dept"].value_counts()     # count of each department
+# → AI      2
+#   Data    1
+#   HR      1
+
+df.isnull().sum()   # count of missing values per column
 ```
 
 ---
 
-## 5. Selection & Indexing
+## 5. Selecting Columns
 
 ```python
-# Column selection
-df["name"]              # Series
-df[["name", "age"]]     # DataFrame (multiple cols)
+# Single column → returns a Series
+print(df["name"])
+# → 0      Alice
+#   1        Bob
+#   ...
 
-# Row selection
-df.loc[0]               # row by LABEL (index label)
-df.iloc[0]              # row by INTEGER position
-df.loc[0:2]             # rows 0,1,2 (inclusive for loc!)
-df.iloc[0:2]            # rows 0,1 (exclusive end for iloc)
-
-# Both rows and cols
-df.loc[0:2, "name":"age"]           # label-based
-df.iloc[0:2, 0:2]                   # position-based
-
-# Boolean filtering (VERY COMMON)
-df[df["age"] > 25]                  # rows where age > 25
-df[(df["age"] > 25) & (df["salary"] > 55000)]  # multiple conditions (use & | ~, NOT and/or)
-df[df["name"].isin(["Alice", "Bob"])]
-df[df["name"].str.contains("li")]   # string filter
-
-# .query() — cleaner for complex filters
-df.query("age > 25 and salary > 55000")
+# Multiple columns → returns a DataFrame (note the double brackets!)
+print(df[["name", "salary"]])
+# →      name  salary
+#   0   Alice   50000
+#   1     Bob   60000
+#   ...
 ```
-
-> **Critical:** `loc` = label-based (inclusive end), `iloc` = integer-position (exclusive end).
 
 ---
 
-## 6. Adding / Modifying Columns
+## 6. Selecting Rows — `loc` vs `iloc` (very important)
+
+- **`loc`** = select by **label/name** (and end is INCLUDED)
+- **`iloc`** = select by **integer position** (and end is EXCLUDED, like Python)
 
 ```python
-# New column
+# iloc — by position
+print(df.iloc[0])         # first row
+print(df.iloc[0:2])       # rows at position 0 and 1 (2 excluded)
+print(df.iloc[0, 1])      # row 0, column 1 → age of Alice → 25
+
+# loc — by label
+print(df.loc[0])          # row with index label 0
+print(df.loc[0:2])        # rows 0, 1, AND 2 (end included!)
+print(df.loc[0, "name"])  # → Alice
+print(df.loc[:, "name"])  # all rows, just the name column
+```
+
+**Remember:** `iloc` = integer/position (excludes end). `loc` = label (includes end).
+
+---
+
+## 7. Filtering Rows (the most-used skill)
+
+```python
+# Single condition
+print(df[df["age"] > 28])
+# → rows where age > 28  (Bob and Charlie)
+
+# Multiple conditions — use & (and), | (or), ~ (not) with parentheses!
+print(df[(df["age"] > 25) & (df["dept"] == "AI")])
+# → Charlie (age 35, dept AI)
+
+# isin — matches any value in a list
+print(df[df["dept"].isin(["AI", "HR"])])
+# → Alice, Charlie, David
+
+# String contains
+print(df[df["name"].str.contains("a", case=False)])
+# → rows where name contains 'a' (case-insensitive)
+
+# .query() — a cleaner way to write conditions
+print(df.query("age > 25 and dept == 'AI'"))
+```
+
+> ⚠️ In Pandas, use `&` `|` `~` (NOT `and` `or` `not`), and wrap each condition in parentheses.
+
+---
+
+## 8. Adding & Modifying Columns
+
+```python
+# New column from a calculation
 df["bonus"] = df["salary"] * 0.1
-df["senior"] = df["age"] > 30     # boolean column
+# adds a bonus column: 5000, 6000, 7000, 4500
 
-# Conditional column
-df["level"] = np.where(df["salary"] > 60000, "senior", "junior")
+# New column with a condition
+import numpy as np
+df["level"] = np.where(df["salary"] > 55000, "senior", "junior")
+# → junior, senior, senior, junior
 
-# Apply a function
-df["name_upper"] = df["name"].apply(str.upper)
-df["tax"] = df["salary"].apply(lambda x: x * 0.3 if x > 55000 else x * 0.2)
+# Apply a function to a column
+df["name_upper"] = df["name"].apply(lambda x: x.upper())
+# → ALICE, BOB, CHARLIE, DAVID
 
-# Rename
-df.rename(columns={"name": "employee_name"}, inplace=True)
+# Apply with a custom rule
+df["tax"] = df["salary"].apply(lambda s: s * 0.3 if s > 55000 else s * 0.2)
 
-# Drop columns
-df.drop(columns=["bonus", "level"], inplace=True)
-# or
-df = df.drop(columns=["bonus"])
+# Rename columns
+df = df.rename(columns={"dept": "department"})
+
+# Delete columns
+df = df.drop(columns=["bonus", "tax"])
 ```
 
 ---
 
-## 7. Handling Missing Data
+## 9. Handling Missing Data (NaN)
 
 ```python
-df.isnull()                # boolean mask
-df.isnull().sum()          # count nulls per column
-df.dropna()                # drop rows with ANY null
-df.dropna(subset=["age"])  # drop only if "age" is null
-df.fillna(0)               # fill all nulls with 0
-df["age"].fillna(df["age"].mean(), inplace=True)  # fill with mean
-df.ffill()                 # forward fill (last valid value)
-df.bfill()                 # backward fill
+# Assume some cells are missing (NaN)
+df.isnull()               # True/False table of missing values
+df.isnull().sum()         # count missing per column
+
+# Drop rows with any missing value
+df.dropna()
+
+# Drop rows only if a specific column is missing
+df.dropna(subset=["age"])
+
+# Fill missing values
+df.fillna(0)                             # fill all NaN with 0
+df["age"].fillna(df["age"].mean())       # fill age with the average age
+df["dept"].fillna("Unknown")             # fill with a label
+
+# Forward fill / backward fill (useful for time series)
+df.ffill()    # fill with the value above
+df.bfill()    # fill with the value below
 ```
 
 ---
 
-## 8. GroupBy (Split-Apply-Combine)
+## 10. Sorting
 
 ```python
-# Basic
-df.groupby("department")["salary"].mean()     # avg salary per dept
-df.groupby("department")["salary"].agg(["mean", "sum", "count"])
+# Sort by one column
+df.sort_values("age")                    # ascending
+df.sort_values("salary", ascending=False)  # descending (highest first)
 
-# Multiple grouping columns
-df.groupby(["department", "level"])["salary"].mean()
+# Sort by multiple columns
+df.sort_values(["department", "salary"], ascending=[True, False])
+# first by department (A-Z), then by salary (high to low) within each
 
-# Multiple aggregations on different columns
-df.groupby("department").agg(
-    avg_salary=("salary", "mean"),
-    max_age=("age", "max"),
-    headcount=("name", "count")
-)
-
-# Transform (return same-size Series aligned to original)
-df["dept_avg"] = df.groupby("department")["salary"].transform("mean")
-
-# Filter groups
-df.groupby("department").filter(lambda g: g["salary"].mean() > 50000)
-```
-
-### GroupBy flow
-
-```
-Original DataFrame
-        ↓
-    .groupby("col")     → Split into groups
-        ↓
-    .agg() / .mean()    → Apply function to each group
-        ↓
-    Result              → Combine back
+# Get top/bottom N
+df.nlargest(2, "salary")     # 2 highest-paid
+df.nsmallest(2, "age")       # 2 youngest
 ```
 
 ---
 
-## 9. Sorting
+## 11. GroupBy (split → apply → combine) — KEY SKILL
+
+GroupBy = split data into groups, do a calculation on each group, combine results. Like SQL's GROUP BY.
 
 ```python
-df.sort_values("age")                        # ascending
-df.sort_values("salary", ascending=False)    # descending
-df.sort_values(["department", "salary"], ascending=[True, False])  # multi-col
+df = pd.DataFrame({
+    "dept": ["AI", "Data", "AI", "HR", "AI"],
+    "salary": [50000, 60000, 70000, 45000, 55000]
+})
 
-df.sort_index()   # sort by index
-df.nlargest(5, "salary")   # top 5 by salary
-df.nsmallest(3, "age")     # bottom 3 by age
+# Average salary per department
+print(df.groupby("dept")["salary"].mean())
+# → dept
+#   AI      58333.33
+#   Data    60000.00
+#   HR      45000.00
+
+# Count how many in each department
+print(df.groupby("dept").size())
+# → AI      3
+#   Data    1
+#   HR      1
+
+# Multiple stats at once
+print(df.groupby("dept")["salary"].agg(["mean", "max", "count"]))
+# →         mean    max  count
+#   dept
+#   AI    58333   70000     3
+#   Data  60000   60000     1
+#   HR    45000   45000     1
+```
+
+### The flow of GroupBy
+
+```
+Original table
+      ↓  groupby("dept")
+Split into groups: [AI rows] [Data rows] [HR rows]
+      ↓  .mean()
+Apply to each group
+      ↓
+Combine into one result table
+```
+
+### transform — keep original rows, add group stat to each
+
+```python
+# Add each employee's department average next to them
+df["dept_avg"] = df.groupby("dept")["salary"].transform("mean")
+# every row now has its department's average salary
 ```
 
 ---
 
-## 10. Merging & Joining
+## 12. Merging & Joining Tables (like SQL joins)
 
 ```python
-# merge (like SQL JOIN)
-pd.merge(df1, df2, on="id")                    # inner join on "id"
-pd.merge(df1, df2, on="id", how="left")        # left join
-pd.merge(df1, df2, on="id", how="outer")       # full outer join
-pd.merge(df1, df2, left_on="emp_id", right_on="id")  # different col names
+employees = pd.DataFrame({
+    "name": ["Alice", "Bob", "Charlie"],
+    "dept_id": [1, 2, 1]
+})
+departments = pd.DataFrame({
+    "dept_id": [1, 2, 3],
+    "dept_name": ["AI", "Data", "HR"]
+})
 
-# concat (stacking)
-pd.concat([df1, df2], axis=0)       # stack vertically (append rows)
-pd.concat([df1, df2], axis=1)       # stack horizontally (add cols)
-pd.concat([df1, df2], ignore_index=True)  # reset index after concat
+# Inner join (only matching rows)
+print(pd.merge(employees, departments, on="dept_id"))
+# →      name  dept_id dept_name
+#   0   Alice        1        AI
+#   1 Charlie        1        AI
+#   2     Bob        2      Data
+# (HR has no employees → excluded in inner join)
+
+# Left join (keep ALL employees, even without a match)
+pd.merge(employees, departments, on="dept_id", how="left")
+
+# Different join types
+# how="inner"  → only matching (default)
+# how="left"   → all from left table
+# how="right"  → all from right table
+# how="outer"  → everything from both
 ```
 
-### Merge types cheat sheet
-
-| how | Keeps |
-|---|---|
-| inner | only matching rows in both |
-| left | all from left + matching from right |
-| right | all from right + matching from left |
-| outer | all rows from both (NaN for missing) |
-
----
-
-## 11. Pivot & Reshape
+### concat — stack tables (not join)
 
 ```python
-# Pivot table (like Excel pivot)
-pd.pivot_table(df, values="salary", index="department",
-               columns="level", aggfunc="mean")
+df1 = pd.DataFrame({"a": [1, 2]})
+df2 = pd.DataFrame({"a": [3, 4]})
 
-# Melt (wide → long)
-pd.melt(df, id_vars=["name"], value_vars=["q1","q2","q3"],
-         var_name="quarter", value_name="sales")
+pd.concat([df1, df2])                    # stack rows (vertically)
+# → a: 1, 2, 3, 4
 
-# Crosstab
-pd.crosstab(df["department"], df["level"])
-```
-
----
-
-## 12. String Operations (`.str` accessor)
-
-```python
-df["name"].str.lower()
-df["name"].str.upper()
-df["name"].str.strip()
-df["name"].str.contains("ali", case=False)   # boolean mask
-df["name"].str.replace("old", "new")
-df["name"].str.split(" ")
-df["name"].str.len()
-df["email"].str.extract(r'@(.+)')  # regex capture group
+pd.concat([df1, df2], ignore_index=True) # reset the index after stacking
 ```
 
 ---
 
-## 13. DateTime Operations
+## 13. String Operations (`.str` accessor)
 
 ```python
-df["date"] = pd.to_datetime(df["date_str"])    # string → datetime
+df = pd.DataFrame({"name": ["  Alice ", "BOB", "charlie"]})
 
-df["date"].dt.year
-df["date"].dt.month
-df["date"].dt.day
-df["date"].dt.day_name()     # 'Monday', 'Tuesday'...
-df["date"].dt.dayofweek      # 0=Monday
+df["name"].str.strip()          # remove spaces → "Alice", "BOB", "charlie"
+df["name"].str.lower()          # → "  alice ", "bob", "charlie"
+df["name"].str.upper()          # → uppercase
+df["name"].str.len()            # length of each string
+df["name"].str.contains("li")   # True/False if contains "li"
+df["name"].str.replace("a", "@")  # replace characters
+df["name"].str.startswith("B")  # True/False
+```
+
+---
+
+## 14. DateTime Operations
+
+```python
+df = pd.DataFrame({"date": ["2025-01-15", "2025-06-20", "2025-12-31"]})
+
+# Convert string column to real dates
+df["date"] = pd.to_datetime(df["date"])
+
+# Extract parts of the date
+df["date"].dt.year          # → 2025, 2025, 2025
+df["date"].dt.month         # → 1, 6, 12
+df["date"].dt.day           # → 15, 20, 31
+df["date"].dt.day_name()    # → Wednesday, Friday, Wednesday
 
 # Filter by date
-df[df["date"] > "2024-01-01"]
-df[df["date"].between("2024-01-01", "2024-06-30")]
-
-# Resample (for time series)
-df.set_index("date").resample("M")["sales"].sum()   # monthly sum
+df[df["date"] > "2025-06-01"]
 ```
 
 ---
 
-## 14. Apply, Map, Applymap
+## 15. Apply, Map (transform values)
 
 ```python
-# .apply() — on Series or DataFrame
-df["salary"].apply(lambda x: x * 1.1)          # element-wise on column
-df.apply(lambda row: row["salary"] / row["age"], axis=1)  # row-wise
+df = pd.DataFrame({"salary": [50000, 60000, 70000], "dept": ["AI", "Data", "AI"]})
 
-# .map() — on Series only (replace values)
-df["level"].map({"junior": 1, "senior": 2})    # dict mapping
+# apply on a column (element-wise)
+df["salary"].apply(lambda x: x * 1.1)
+# → 55000, 66000, 77000
 
-# .map() with function
-df["salary"].map(lambda x: f"${x:,.0f}")
+# apply on rows (axis=1) — use multiple columns
+df.apply(lambda row: row["salary"] * 2 if row["dept"] == "AI" else row["salary"], axis=1)
+
+# map — replace values using a dictionary
+df["dept"].map({"AI": 1, "Data": 2})
+# → 1, 2, 1
 ```
 
 ---
 
-## 15. Performance Tips
+## 16. Common Interview Patterns (with examples)
 
 ```python
-# 1. Use vectorized operations (NOT .apply() with loops)
-df["bonus"] = df["salary"] * 0.1             # FAST (vectorized)
-df["bonus"] = df["salary"].apply(lambda x: x*0.1)  # SLOWER
+# 1. Remove duplicate rows
+df.drop_duplicates()
+df.drop_duplicates(subset=["name"], keep="first")
 
-# 2. Use .isin() instead of multiple OR conditions
-df[df["city"].isin(["Delhi", "Mumbai", "Pune"])]    # FAST
+# 2. Rank rows
+df["salary_rank"] = df["salary"].rank(ascending=False)
 
-# 3. Category dtype for repeated strings
-df["city"] = df["city"].astype("category")   # saves memory
+# 3. Rank within each group (top earners per department)
+df["rank_in_dept"] = df.groupby("dept")["salary"].rank(ascending=False)
 
-# 4. Read only needed columns
-df = pd.read_csv("big.csv", usecols=["name", "age"])
+# 4. Running (cumulative) total
+df["running_total"] = df["salary"].cumsum()
 
-# 5. Chunked reading for large files
-for chunk in pd.read_csv("huge.csv", chunksize=100000):
-    process(chunk)
+# 5. Difference from the previous row
+df["prev_salary"] = df["salary"].shift(1)      # value from row above
+df["change"] = df["salary"] - df["salary"].shift(1)
+
+# 6. Percentage change
+df["pct_change"] = df["salary"].pct_change()
+
+# 7. Moving average (rolling window)
+df["rolling_avg"] = df["salary"].rolling(window=2).mean()
 ```
 
 ---
 
-## 16. Saving Data
+## 17. Saving Data
 
 ```python
-df.to_csv("output.csv", index=False)
+df.to_csv("output.csv", index=False)     # index=False → don't save row numbers
 df.to_excel("output.xlsx", index=False)
 df.to_json("output.json", orient="records")
-df.to_parquet("output.parquet")    # fast, compressed, typed
 ```
 
 ---
 
-## 17. Common Interview Patterns
-
-### Remove duplicates
-```python
-df.drop_duplicates()
-df.drop_duplicates(subset=["name", "date"], keep="last")
-```
-
-### Rank
-```python
-df["salary_rank"] = df["salary"].rank(ascending=False)
-df["rank_in_dept"] = df.groupby("dept")["salary"].rank(ascending=False)
-```
-
-### Cumulative operations
-```python
-df["running_total"] = df["sales"].cumsum()
-df["cummax"] = df["price"].cummax()
-```
-
-### Shift / lag
-```python
-df["prev_day_sales"] = df["sales"].shift(1)       # lag by 1
-df["next_day"] = df["sales"].shift(-1)            # lead by 1
-df["daily_change"] = df["sales"] - df["sales"].shift(1)
-df["pct_change"] = df["sales"].pct_change()
-```
-
-### Window / Rolling
-```python
-df["rolling_7d_avg"] = df["sales"].rolling(window=7).mean()
-df["expanding_max"] = df["price"].expanding().max()
-```
-
----
-
-## 18. Quick Reference Table
+## 18. NumPy vs Pandas — Quick Reference
 
 | Task | NumPy | Pandas |
 |---|---|---|
-| Create | `np.array([1,2,3])` | `pd.Series([1,2,3])` |
+| Make it | `np.array([1,2,3])` | `pd.Series([1,2,3])` / `pd.DataFrame({...})` |
 | Shape | `a.shape` | `df.shape` |
-| Select col | — | `df["col"]` or `df.col` |
+| Select column | — | `df["col"]` |
 | Filter | `a[a > 5]` | `df[df["col"] > 5]` |
+| Average | `a.mean()` | `df["col"].mean()` |
 | Group | — | `df.groupby("col")` |
 | Sort | `np.sort(a)` | `df.sort_values("col")` |
-| Null check | `np.isnan(a)` | `df.isnull()` |
-| Aggregate | `a.mean()` | `df["col"].mean()` |
-| Join | — | `pd.merge(df1, df2)` |
+| Missing values | `np.isnan(a)` | `df.isnull()` |
+| Join tables | — | `pd.merge(df1, df2)` |
 | Read file | `np.loadtxt()` | `pd.read_csv()` |
 
 ---
 
-Good luck! For interviews: know GroupBy cold (§8), filtering (§5), merge types (§10), and be able to write a quick `.apply()` or vectorized operation on the spot.
+## 19. Quick Q&A for interviews
+
+**Q: Why is NumPy faster than Python lists?**
+A: NumPy stores data in contiguous memory and runs operations in C, and it uses vectorization (no Python loops). Lists store pointers to scattered objects and need slow Python loops for math.
+
+**Q: What is broadcasting?**
+A: NumPy's ability to do math between arrays of different shapes by automatically stretching the smaller one, as long as dimensions are equal or one is 1.
+
+**Q: What does axis=0 and axis=1 mean?**
+A: axis=0 collapses rows (operates down each column). axis=1 collapses columns (operates across each row).
+
+**Q: Difference between loc and iloc?**
+A: `loc` selects by label and includes the end. `iloc` selects by integer position and excludes the end.
+
+**Q: What is a Series vs a DataFrame?**
+A: A Series is a single labeled column (1D). A DataFrame is a full table of rows and columns (2D), essentially a collection of Series.
+
+**Q: How do you handle missing values in Pandas?**
+A: Detect with `isnull()`, remove with `dropna()`, or fill with `fillna()` (using 0, mean, forward-fill, etc.).
+
+**Q: What does groupby do?**
+A: Splits the data into groups by a column, applies an aggregation (mean, sum, count) to each group, and combines the results — split-apply-combine.
+
+**Q: Difference between merge and concat?**
+A: `merge` joins tables on a common column (like SQL joins). `concat` stacks tables together (rows or columns) without matching keys.
+
+**Q: apply vs map?**
+A: `map` works on a Series to replace values (often with a dict). `apply` works on Series or DataFrame and can run a custom function, including across rows with `axis=1`.
+
+**Q: What is a view vs a copy in NumPy?**
+A: A slice returns a view (a window into the original) — changing it changes the original. Use `.copy()` for an independent copy.
+
+---
+
+## 20. One-Glance Cheat Sheet
+
+**NumPy**
+- Create: `np.array`, `np.zeros`, `np.ones`, `np.arange`, `np.linspace`
+- `a.shape`, `a.reshape(r, c)`, `a.T`
+- Filter: `a[a > 5]`
+- Math: `a + b`, `a * 2`, `np.sqrt(a)` (vectorized, no loops)
+- Aggregate: `a.sum()`, `.mean()`, `axis=0` (columns) / `axis=1` (rows)
+- Broadcasting stretches smaller arrays automatically
+
+**Pandas**
+- `pd.read_csv()`, `df.head()`, `df.info()`, `df.describe()`
+- Select: `df["col"]`, `df[["c1","c2"]]`
+- Rows: `df.loc[label]` (inclusive), `df.iloc[pos]` (exclusive)
+- Filter: `df[(df["a"]>5) & (df["b"]=="x")]`
+- `df.groupby("col")["val"].mean()`
+- `pd.merge(df1, df2, on="key", how="left")`
+- Missing: `df.isnull().sum()`, `df.fillna()`, `df.dropna()`
+- Save: `df.to_csv("out.csv", index=False)`
+
+---
+
+Good luck! For interviews, master: filtering, `loc`/`iloc`, `groupby`, `merge`, and handling missing data. These 5 cover 90% of real Pandas work. 🚀

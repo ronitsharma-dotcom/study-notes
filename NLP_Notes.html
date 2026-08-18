@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NLP — Detailed Visual Notes</title>
+<style>
+  :root{
+    --bg:#0f1220; --card:#171b2e; --ink:#e8eaf2; --muted:#a7adc4;
+    --accent:#5ed3b3; --accent2:#8be0c3; --line:#2a2f4a; --code:#1d2238; --warn:#ffcf6e; --blue:#6ea8fe; --pink:#ff9ec4; --purple:#c58bff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.7;font-size:16px}
+  .wrap{max-width:920px;margin:0 auto;padding:32px 20px 90px}
+  h1{font-size:2.2rem;margin:.2em 0}
+  h2{font-size:1.55rem;margin-top:2.4em;padding-bottom:.3em;border-bottom:2px solid var(--line);color:var(--accent)}
+  h3{font-size:1.22rem;margin-top:1.7em;color:var(--accent2)}
+  h4{font-size:1.05rem;margin-top:1.3em;color:var(--pink)}
+  .sub{color:var(--muted);font-size:1.05rem}
+  code{background:var(--code);padding:2px 6px;border-radius:5px;font-family:Consolas,Monaco,monospace;font-size:.9em;color:#ffd9a0}
+  pre{background:var(--code);padding:14px 16px;border-radius:10px;overflow-x:auto;border:1px solid var(--line)}
+  pre code{background:none;padding:0;color:#d7e0ff}
+  table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.95rem}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:#20263f;color:var(--accent)}
+  tr:nth-child(even){background:#141830}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin:16px 0}
+  .tip{border-left:4px solid var(--accent2);background:#14251f;padding:10px 16px;border-radius:8px;margin:14px 0}
+  .warn{border-left:4px solid var(--warn);background:#2a2413;padding:10px 16px;border-radius:8px;margin:14px 0}
+  .analogy{border-left:4px solid var(--blue);background:#111a30;padding:10px 16px;border-radius:8px;margin:14px 0}
+  .fig{background:#0c1a2e;border:1px solid var(--line);border-radius:12px;padding:18px;margin:18px 0;text-align:center}
+  .fig .cap{color:var(--muted);font-size:.9rem;margin-top:10px;font-style:italic}
+  .toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 22px;columns:2;column-gap:32px}
+  .toc a{color:var(--accent);text-decoration:none;font-size:.92rem}
+  .toc a:hover{text-decoration:underline}
+  .qa{margin:10px 0}
+  .qa b{color:var(--accent2)}
+  hr{border:none;border-top:1px solid var(--line);margin:2em 0}
+  svg{max-width:100%;height:auto}
+  .txt{fill:#e8eaf2;font-size:13px;font-family:Segoe UI,sans-serif}
+  .txtm{fill:#a7adc4;font-size:12px;font-family:Segoe UI,sans-serif}
+  @media(max-width:640px){.toc{columns:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>💬 Natural Language Processing (NLP) — Detailed Visual Notes</h1>
+<p class="sub">How computers understand and generate human language — from cleaning text to Transformers and LLMs. Detailed, with diagrams and examples.</p>
+
+<div class="toc">
+<a href="#intro">1. What is NLP & Why It's Hard</a><br>
+<a href="#pipeline">2. The NLP Pipeline</a><br>
+<a href="#preprocess">3. Text Preprocessing (deep)</a><br>
+<a href="#represent">4. Turning Text into Numbers</a><br>
+<a href="#bow">5. Bag of Words & TF-IDF</a><br>
+<a href="#embed">6. Word Embeddings (Word2Vec)</a><br>
+<a href="#context">7. Contextual Embeddings (BERT)</a><br>
+<a href="#tasks">8. Core NLP Tasks</a><br>
+<a href="#lm">9. Language Models</a><br>
+<a href="#seq">10. RNN/LSTM → Attention → Transformers</a><br>
+<a href="#llm">11. Modern LLMs & Tokenization</a><br>
+<a href="#rag">12. Semantic Search & RAG</a><br>
+<a href="#metrics">13. Evaluation Metrics</a><br>
+<a href="#qa">14. Interview Q&A</a><br>
+<a href="#cheat">15. Cheat Sheet</a><br>
+</div>
+
+<h2 id="intro">1. What is NLP & Why It's Hard</h2>
+<p><b>Natural Language Processing (NLP)</b> is the field of AI that lets computers <b>read, understand, and generate human language</b> — text and speech. It sits at the intersection of linguistics, machine learning, and deep learning.</p>
+
+<div class="card"><b>What NLP powers:</b> Google Translate, ChatGPT, Siri/Alexa, spam filters, sentiment analysis, chatbots, autocomplete, search engines, resume screeners, your SMS classifier.</div>
+
+<h3>Why is language so hard for computers?</h3>
+<p>Numbers and code are precise. Human language is messy, ambiguous, and full of context. This is the core challenge of NLP:</p>
+<ul>
+<li><b>Ambiguity</b> — "I saw her duck." (Did she lower her head, or did you see her pet duck?)</li>
+<li><b>Context-dependence</b> — "bank" means something different in "river bank" vs "money bank."</li>
+<li><b>Sarcasm & tone</b> — "Oh great, another Monday" is negative despite the word "great."</li>
+<li><b>Synonyms & paraphrase</b> — "big," "large," "huge," "enormous" all mean similar things.</li>
+<li><b>Spelling, slang, emojis, typos</b> — real text is nothing like a clean textbook.</li>
+<li><b>World knowledge</b> — "The trophy didn't fit in the suitcase because it was too big." What was too big? (You know it's the trophy — computers must learn this.)</li>
+</ul>
+<div class="analogy"><b>The big idea:</b> Computers only understand numbers. So the entire game of NLP is: <b>turn messy text into meaningful numbers</b>, do math on them, and (optionally) turn numbers back into text.</div>
+
+<h2 id="pipeline">2. The NLP Pipeline</h2>
+<p>Most classic NLP systems follow this flow: clean the text → convert it to numbers → feed a model → get the output.</p>
+
+<div class="fig">
+<svg viewBox="0 0 700 120" width="700">
+  <rect x="8" y="45" width="95" height="42" rx="8" fill="#20263f" stroke="#5ed3b3"/><text x="55" y="63" text-anchor="middle" class="txt">Raw Text</text><text x="55" y="79" text-anchor="middle" class="txtm">"I love NLP!"</text>
+  <rect x="123" y="45" width="105" height="42" rx="8" fill="#20263f" stroke="#5ed3b3"/><text x="175" y="63" text-anchor="middle" class="txt">Preprocess</text><text x="175" y="79" text-anchor="middle" class="txtm">clean + tokenize</text>
+  <rect x="248" y="45" width="120" height="42" rx="8" fill="#111a30" stroke="#6ea8fe"/><text x="308" y="63" text-anchor="middle" class="txt">Vectorize</text><text x="308" y="79" text-anchor="middle" class="txtm">text → numbers</text>
+  <rect x="388" y="45" width="105" height="42" rx="8" fill="#1a1330" stroke="#c58bff"/><text x="440" y="63" text-anchor="middle" class="txt">Model</text><text x="440" y="79" text-anchor="middle" class="txtm">ML / DL / LLM</text>
+  <rect x="513" y="45" width="120" height="42" rx="8" fill="#14251f" stroke="#8be0c3"/><text x="573" y="63" text-anchor="middle" class="txt">Output</text><text x="573" y="79" text-anchor="middle" class="txtm">label / text</text>
+  <g stroke="#5ed3b3" stroke-width="2" marker-end="url(#p)">
+  <line x1="103" y1="66" x2="121" y2="66"/><line x1="228" y1="66" x2="246" y2="66"/><line x1="368" y1="66" x2="386" y2="66"/><line x1="493" y1="66" x2="511" y2="66"/>
+  </g>
+  <defs><marker id="p" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#5ed3b3"/></marker></defs>
+</svg>
+<div class="cap">The classic NLP pipeline. Modern LLMs collapse the middle steps, but the concept is the same.</div>
+</div>
+
+<h2 id="preprocess">3. Text Preprocessing (in depth)</h2>
+<p>Raw text is dirty. Preprocessing cleans and standardizes it so the model isn't confused by trivial differences (like "Cat" vs "cat"). Here are the core steps.</p>
+
+<h3>3.1 Tokenization</h3>
+<p>Splitting text into smaller units called <b>tokens</b>. This is the very first step — you can't process text without breaking it into pieces. There are three <b>granularities</b>:</p>
+<table>
+<tr><th>Level</th><th>"unhappiness" becomes</th><th>Tradeoff</th></tr>
+<tr><td><b>Word</b></td><td>["unhappiness"]</td><td>Natural, but huge vocabulary and can't handle unseen words (out-of-vocabulary problem)</td></tr>
+<tr><td><b>Character</b></td><td>["u","n","h","a","p",...]</td><td>Tiny vocabulary, never OOV, but sequences get very long and each char has little meaning</td></tr>
+<tr><td><b>Subword</b> (modern)</td><td>["un","happi","ness"]</td><td>Best of both — small vocabulary, handles any word, keeps meaning. Used by BERT/GPT</td></tr>
+</table>
+
+<h4>The out-of-vocabulary (OOV) problem</h4>
+<p>Word tokenization fails on words it never saw in training — a new slang word, a typo, a rare name → it becomes a useless "unknown" token. Subword tokenization solves this: any word can be built from smaller known pieces.</p>
+<pre><code>"I love NLP!"      →  ["I", "love", "NLP", "!"]        (word)
+"tokenization"     →  ["token", "##ization"]           (subword — WordPiece, BERT)
+"playing"          →  ["play", "##ing"]                (## means "continues previous")
+"lowestqualityever"→  ["lowest", "quality", "ever"]    (rare word split into known pieces)</code></pre>
+<p>Common subword algorithms: <b>BPE</b> (Byte-Pair Encoding, used by GPT), <b>WordPiece</b> (BERT), <b>SentencePiece</b> (T5, LLaMA). They all learn the most frequent character-pair merges from the training corpus and use those as the vocabulary.</p>
+
+<h3>3.2 Lowercasing</h3>
+<p>Convert everything to lowercase so "Apple" and "apple" are treated the same. (Careful: sometimes case matters — "US" the country vs "us" the pronoun.)</p>
+
+<h3>3.3 Removing Stopwords</h3>
+<p><b>Stopwords</b> are extremely common words that carry little meaning: "the", "is", "a", "and", "of". Removing them reduces noise and size.</p>
+<pre><code>"the cat is on the mat" → ["cat", "mat"]</code></pre>
+<div class="warn"><b>Caution:</b> Don't always remove stopwords. In sentiment ("not good") or with modern Transformers, stopwords carry important meaning. It's mainly useful for classic Bag-of-Words models.</div>
+
+<h3>3.4 Stemming vs Lemmatization</h3>
+<p>Both reduce words to a base form so "running", "runs", "ran" are grouped together — but they work differently:</p>
+<table>
+<tr><th></th><th>Stemming</th><th>Lemmatization</th></tr>
+<tr><td>How</td><td>Chops off endings with crude rules</td><td>Uses a dictionary + grammar to find the real root</td></tr>
+<tr><td>"studies" →</td><td>"studi" (not a real word)</td><td>"study" (correct)</td></tr>
+<tr><td>"better" →</td><td>"better"</td><td>"good" (understands meaning)</td></tr>
+<tr><td>Speed</td><td>Fast</td><td>Slower</td></tr>
+<tr><td>Accuracy</td><td>Rough</td><td>Accurate</td></tr>
+</table>
+<h4>How each actually works</h4>
+<p><b>Stemming</b> applies fixed rules to strip suffixes — e.g., the Porter Stemmer removes "-ing", "-ed", "-s", "-es". It doesn't understand meaning, so it can produce non-words ("studies"→"studi", "happily"→"happili"). Sometimes it over-stems (two different words collapse to the same stem) or under-stems.</p>
+<p><b>Lemmatization</b> uses a dictionary (like WordNet) plus the word's part of speech to find the true base form (the "lemma"). It knows "better" is the comparative of "good", so it returns "good". It needs to know if a word is a noun or verb ("meeting" as a noun stays "meeting"; as a verb → "meet").</p>
+<div class="tip"><b>Rule of thumb:</b> Stemming is fast and crude (good for search where speed matters); lemmatization is slower but produces real words (good when quality matters). Both aim to group word variants so "run/runs/running" are treated as one concept, shrinking the vocabulary.</div>
+
+<h3>3.5 Other common steps</h3>
+<ul>
+<li><b>Removing punctuation & special characters</b> (unless meaningful, like emojis in sentiment).</li>
+<li><b>Removing numbers / URLs / HTML tags.</b></li>
+<li><b>Handling contractions</b> — "don't" → "do not".</li>
+<li><b>Spelling correction</b> (for very noisy text like tweets/SMS).</li>
+</ul>
+<div class="warn"><b>Modern note:</b> With Transformers/LLMs, you do <b>far less</b> preprocessing — they handle raw text with their own subword tokenizer. Heavy cleaning (stopword removal, stemming) is mostly for classic models like Bag-of-Words + TF-IDF.</div>
+
+<h2 id="represent">4. Turning Text into Numbers (Text Representation)</h2>
+<p>This is the heart of NLP. Models do math, not language — so we must convert words into <b>numeric vectors</b>. There's an evolution of methods, each fixing the previous one's weakness:</p>
+<div class="fig">
+<svg viewBox="0 0 700 90" width="700">
+  <rect x="10" y="30" width="120" height="40" rx="8" fill="#20263f" stroke="#5ed3b3"/><text x="70" y="48" text-anchor="middle" class="txt">One-Hot /</text><text x="70" y="63" text-anchor="middle" class="txtm">Bag of Words</text>
+  <rect x="160" y="30" width="110" height="40" rx="8" fill="#20263f" stroke="#5ed3b3"/><text x="215" y="55" text-anchor="middle" class="txt">TF-IDF</text>
+  <rect x="300" y="30" width="150" height="40" rx="8" fill="#111a30" stroke="#6ea8fe"/><text x="375" y="48" text-anchor="middle" class="txt">Word Embeddings</text><text x="375" y="63" text-anchor="middle" class="txtm">Word2Vec, GloVe</text>
+  <rect x="480" y="30" width="200" height="40" rx="8" fill="#1a1330" stroke="#c58bff"/><text x="580" y="48" text-anchor="middle" class="txt">Contextual Embeddings</text><text x="580" y="63" text-anchor="middle" class="txtm">BERT, GPT</text>
+  <g stroke="#5ed3b3" stroke-width="2" marker-end="url(#r)">
+  <line x1="130" y1="50" x2="158" y2="50"/><line x1="270" y1="50" x2="298" y2="50"/><line x1="450" y1="50" x2="478" y2="50"/>
+  </g>
+  <defs><marker id="r" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#5ed3b3"/></marker></defs>
+</svg>
+<div class="cap">The evolution of text representation — each step captures more <i>meaning</i>.</div>
+</div>
+
+<h2 id="bow">5. Bag of Words & TF-IDF</h2>
+
+<h3>5.1 Bag of Words (BoW)</h3>
+<p>The simplest method: count how many times each word appears, ignoring order. You build a vocabulary, then each document becomes a vector of word counts.</p>
+<pre><code>Docs:  D1 = "I love NLP"    D2 = "I love ML"
+Vocab: [I, love, NLP, ML]
+
+D1 → [1, 1, 1, 0]
+D2 → [1, 1, 0, 1]</code></pre>
+<p><b>Weakness 1 — loses order:</b> "dog bites man" and "man bites dog" get the identical vector. <b>Weakness 2 — no meaning:</b> "big" and "large" are treated as completely unrelated. <b>Weakness 3 — huge & sparse:</b> vocabulary of 50,000 words → 50,000-length vectors mostly full of zeros.</p>
+
+<h4>N-grams — a partial fix for lost order</h4>
+<p>To recover some word order, BoW can count <b>n-grams</b> (sequences of n words) instead of single words:</p>
+<pre><code>"not good"  →  unigrams: ["not", "good"]        (loses the negation!)
+             →  bigrams:  ["not good"]           (captures it — very useful for sentiment)</code></pre>
+<p>Bigrams/trigrams help, but they explode the vocabulary size and still can't capture long-range meaning.</p>
+
+<h3>5.2 TF-IDF (Term Frequency – Inverse Document Frequency)</h3>
+<p>BoW treats all words equally, but common words like "the" aren't informative. TF-IDF <b>down-weights common words and up-weights rare, meaningful ones</b>. It has two parts multiplied together:</p>
+<pre><code>TF(word)  = (times the word appears in THIS document) / (total words in the doc)
+            → measures importance WITHIN a document
+
+IDF(word) = log( total documents / documents containing the word )
+            → measures rarity ACROSS the corpus (rare = high, common = low)
+
+TF-IDF = TF × IDF</code></pre>
+
+<h4>Worked example</h4>
+<pre><code>Corpus: 1,000 documents.
+Word "the" appears in ALL 1,000 docs → IDF = log(1000/1000) = log(1) = 0
+   → TF-IDF for "the" = TF × 0 = 0        (contributes nothing — perfect!)
+
+Word "photosynthesis" appears in only 10 docs → IDF = log(1000/10) = log(100) = 2
+   → if it appears often in a biology doc, TF-IDF is HIGH
+   → this word strongly characterizes that document</code></pre>
+<p>So the math automatically kills off filler words and spotlights distinctive terms — <b>without</b> a manual stopword list. This is the classic method for <b>keyword-based search and document ranking</b>, and it's the idea behind the <b>BM25</b> component in your hybrid RAG projects (BM25 is a refined TF-IDF that also accounts for document length).</p>
+<div class="tip"><b>Interview line:</b> "TF-IDF weights a word by how frequent it is in a document but how rare it is across the corpus, so it highlights distinctive words and ignores common ones. But it still has no idea that 'car' and 'automobile' mean the same thing — that's what embeddings fix."</div>
+
+<h2 id="embed">6. Word Embeddings (Word2Vec, GloVe)</h2>
+<p>The big leap. Instead of counts, an embedding represents each word as a <b>dense vector</b> (e.g., 300 numbers) that <b>captures meaning</b>. Words used in similar contexts get similar vectors.</p>
+<p>The guiding principle: <i>"You shall know a word by the company it keeps."</i> — words that appear in similar contexts have similar meanings.</p>
+
+<div class="fig">
+<svg viewBox="0 0 460 260" width="460">
+  <line x1="40" y1="220" x2="440" y2="220" stroke="#a7adc4"/>
+  <line x1="40" y1="20" x2="40" y2="220" stroke="#a7adc4"/>
+  <text x="240" y="248" text-anchor="middle" class="txtm">(embedding dimension 1)</text>
+  <!-- king -->
+  <circle cx="120" cy="80" r="5" fill="#6ea8fe"/><text x="120" y="72" text-anchor="middle" class="txt">king</text>
+  <!-- queen -->
+  <circle cx="200" cy="60" r="5" fill="#ff9ec4"/><text x="205" y="52" text-anchor="middle" class="txt">queen</text>
+  <!-- man -->
+  <circle cx="140" cy="180" r="5" fill="#6ea8fe"/><text x="140" y="200" text-anchor="middle" class="txt">man</text>
+  <!-- woman -->
+  <circle cx="220" cy="160" r="5" fill="#ff9ec4"/><text x="225" y="180" text-anchor="middle" class="txt">woman</text>
+  <!-- vectors -->
+  <line x1="140" y1="180" x2="120" y2="80" stroke="#8be0c3" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#v)"/>
+  <line x1="220" y1="160" x2="200" y2="60" stroke="#8be0c3" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#v)"/>
+  <text x="300" y="120" class="txtm" style="fill:#8be0c3">king − man + woman ≈ queen</text>
+  <defs><marker id="v" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#8be0c3"/></marker></defs>
+</svg>
+<div class="cap">The famous result: vector("king") − vector("man") + vector("woman") ≈ vector("queen"). Embeddings capture relationships!</div>
+</div>
+
+<p>Because meaning is encoded geometrically, you can do <b>math on words</b>: the direction from "man" to "king" is the same "royalty" direction as "woman" to "queen." Similar words cluster together in the vector space.</p>
+
+<h3>How embeddings are learned (Word2Vec in depth)</h3>
+<p>Word2Vec trains a shallow neural network on a "fake" task, then throws away the task and keeps the hidden-layer weights — those weights <b>are</b> the embeddings. There are two training setups:</p>
+<div class="fig">
+<svg viewBox="0 0 640 170" width="640">
+  <!-- CBOW -->
+  <text x="160" y="18" text-anchor="middle" class="txt" style="fill:#6ea8fe;font-weight:bold">CBOW: context → target</text>
+  <text x="60" y="60" class="txtm">"the"</text><text x="60" y="80" class="txtm">"sat"</text><text x="55" y="100" class="txtm">"on"</text>
+  <rect x="130" y="55" width="70" height="45" rx="6" fill="#111a30" stroke="#6ea8fe"/><text x="165" y="82" text-anchor="middle" class="txt">net</text>
+  <text x="255" y="82" class="txt" style="fill:#8be0c3">"cat"</text>
+  <line x1="95" y1="70" x2="128" y2="72" stroke="#6ea8fe" stroke-width="1.5"/><line x1="95" y1="78" x2="128" y2="80" stroke="#6ea8fe" stroke-width="1.5"/>
+  <line x1="200" y1="78" x2="248" y2="78" stroke="#8be0c3" stroke-width="1.5" marker-end="url(#w2)"/>
+  <!-- Skip-gram -->
+  <text x="480" y="18" text-anchor="middle" class="txt" style="fill:#ff9ec4;font-weight:bold">Skip-gram: target → context</text>
+  <text x="390" y="82" class="txt" style="fill:#8be0c3">"cat"</text>
+  <rect x="440" y="55" width="70" height="45" rx="6" fill="#1a1330" stroke="#ff9ec4"/><text x="475" y="82" text-anchor="middle" class="txt">net</text>
+  <text x="560" y="60" class="txtm">"the"</text><text x="560" y="80" class="txtm">"sat"</text><text x="560" y="100" class="txtm">"on"</text>
+  <line x1="425" y1="78" x2="438" y2="78" stroke="#8be0c3" stroke-width="1.5"/>
+  <line x1="510" y1="72" x2="555" y2="65" stroke="#ff9ec4" stroke-width="1.5" marker-end="url(#w2)"/><line x1="510" y1="80" x2="555" y2="80" stroke="#ff9ec4" stroke-width="1.5" marker-end="url(#w2)"/>
+  <defs><marker id="w2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#8be0c3"/></marker></defs>
+</svg>
+<div class="cap">CBOW predicts the missing word from its context; Skip-gram predicts the context from the word.</div>
+</div>
+<ul>
+<li><b>CBOW</b> (Continuous Bag of Words) — given surrounding words ("the ___ sat on"), predict the missing target word ("cat"). Fast, good for frequent words.</li>
+<li><b>Skip-gram</b> — given a word ("cat"), predict its surrounding words. Slower but better for rare words.</li>
+</ul>
+<p><b>The insight:</b> to predict context well, the network is forced to give words that appear in similar contexts similar hidden representations. So "king" and "queen" (both appear near "royal", "throne", "crown") end up with nearby vectors — meaning emerges automatically from co-occurrence.</p>
+
+<h4>Measuring similarity — cosine similarity</h4>
+<p>Once words are vectors, we measure how related two words are by the <b>angle</b> between their vectors (not their length):</p>
+<pre><code>cosine_similarity = 1.0  → identical direction (very similar meaning)
+                  = 0.0  → unrelated (perpendicular)
+                  = -1.0 → opposite</code></pre>
+<p>This is the same cosine similarity used in semantic search and your face-matching (FaceNet) project.</p>
+
+<h4>Other embedding methods</h4>
+<ul>
+<li><b>GloVe (Stanford)</b> — instead of local windows, it uses the <b>global</b> word co-occurrence matrix of the whole corpus.</li>
+<li><b>fastText (Facebook)</b> — like Word2Vec but builds word vectors from <b>subword pieces</b>, so it handles rare and misspelled words ("tokenizzation" still gets a reasonable vector).</li>
+</ul>
+
+<h3>The limitation: one vector per word</h3>
+<div class="warn"><b>Big weakness:</b> Word2Vec gives each word a <b>single, fixed</b> vector regardless of context. So "bank" in "river bank" and "bank account" gets the <b>same</b> vector — even though the meanings are totally different. This is what contextual embeddings fix ↓.</div>
+
+<h2 id="context">7. Contextual Embeddings (ELMo, BERT)</h2>
+<p>Contextual embeddings give a word a <b>different vector depending on its sentence</b>. The word "bank" gets one vector in "river bank" and a different one in "bank account."</p>
+<pre><code>Word2Vec:  "bank"  →  [0.2, 0.7, ...]   (always the same)
+
+BERT:  "river bank"  → "bank" = [0.2, 0.7, ...]
+       "bank account" → "bank" = [0.9, 0.1, ...]   (context-aware!)</code></pre>
+<p>These come from deep models like <b>BERT</b> and <b>GPT</b>, which read the whole sentence and use <b>self-attention</b> so each word's vector is shaped by the words around it. This was a massive leap in NLP quality.</p>
+
+<h4>How BERT produces contextual embeddings</h4>
+<p>BERT is a Transformer encoder trained with <b>Masked Language Modeling (MLM)</b>: during training, ~15% of words are hidden with a <code>[MASK]</code> token and the model must predict them from <b>both</b> left and right context.</p>
+<pre><code>Input:  "The cat sat on the [MASK]."
+Task:   predict "mat"</code></pre>
+<p>Because it must use words on both sides to guess the masked word, BERT learns deep <b>bidirectional</b> understanding. After training, feed it any sentence and each token's output vector is a context-aware embedding.</p>
+<p>Two special tokens matter: <b>[CLS]</b> (a summary vector for the whole sentence — used for classification) and <b>[SEP]</b> (separates two sentences).</p>
+
+<h4>ELMo (the predecessor)</h4>
+<p>ELMo first popularized contextual embeddings using bidirectional LSTMs before BERT did it better with Transformers. Worth knowing the name.</p>
+
+<div class="tip"><b>Connection:</b> Your SMS classifier uses a fine-tuned BERT — it reads the whole message bidirectionally, produces the [CLS] context-aware vector, and a small classification head on top predicts the category.</div>
+
+<h2 id="tasks">8. Core NLP Tasks</h2>
+<p>These are the classic problems NLP solves. Know what each one is.</p>
+<table>
+<tr><th>Task</th><th>What it does</th><th>Example</th></tr>
+<tr><td><b>Text Classification</b></td><td>Assign a label to a document</td><td>Spam/not-spam; your SMS categories; sentiment</td></tr>
+<tr><td><b>Sentiment Analysis</b></td><td>Detect positive/negative/neutral tone</td><td>"This movie was great" → positive</td></tr>
+<tr><td><b>Named Entity Recognition (NER)</b></td><td>Find & label entities (people, places, dates, orgs)</td><td>"Ronit works at DMI in Delhi" → PERSON, ORG, LOCATION</td></tr>
+<tr><td><b>POS Tagging</b></td><td>Label each word's part of speech</td><td>"dog" → noun, "run" → verb</td></tr>
+<tr><td><b>Machine Translation</b></td><td>Translate between languages</td><td>English → French</td></tr>
+<tr><td><b>Summarization</b></td><td>Shorten a long text keeping key info</td><td>Article → 3-sentence summary</td></tr>
+<tr><td><b>Question Answering (QA)</b></td><td>Answer a question from a passage</td><td>"Where does Ronit work?" → "DMI"</td></tr>
+<tr><td><b>Text Generation</b></td><td>Produce new coherent text</td><td>ChatGPT writing an essay</td></tr>
+<tr><td><b>Topic Modeling</b></td><td>Discover themes in documents (unsupervised)</td><td>LDA finding topics in news</td></tr>
+</table>
+
+<h4>Task types by structure</h4>
+<p>It helps to see these tasks grouped by their output shape:</p>
+<ul>
+<li><b>Sequence classification</b> — one label for the whole text (sentiment, spam, your SMS categories).</li>
+<li><b>Token classification</b> — one label per word (NER, POS tagging).</li>
+<li><b>Sequence-to-sequence</b> — text in, text out (translation, summarization).</li>
+<li><b>Span extraction</b> — pick a start/end position in a passage (extractive QA).</li>
+<li><b>Generation</b> — produce free-form text (chatbots, writing).</li>
+</ul>
+<p>This structure tells you which model head to use: a classification head for one label, a token-tagging head for per-word labels, or a decoder for generation.</p>
+
+<h4>NER visual</h4>
+<div class="fig">
+<svg viewBox="0 0 620 90" width="620">
+  <text x="20" y="50" class="txt" style="font-size:15px">Ronit</text>
+  <rect x="16" y="55" width="55" height="20" rx="4" fill="#111a30" stroke="#6ea8fe"/><text x="43" y="69" text-anchor="middle" class="txtm" style="fill:#6ea8fe">PERSON</text>
+  <text x="90" y="50" class="txt" style="font-size:15px">works at</text>
+  <text x="170" y="50" class="txt" style="font-size:15px">DMI Finance</text>
+  <rect x="166" y="55" width="90" height="20" rx="4" fill="#14251f" stroke="#8be0c3"/><text x="211" y="69" text-anchor="middle" class="txtm" style="fill:#8be0c3">ORG</text>
+  <text x="275" y="50" class="txt" style="font-size:15px">in</text>
+  <text x="300" y="50" class="txt" style="font-size:15px">Delhi</text>
+  <rect x="296" y="55" width="70" height="20" rx="4" fill="#2a1320" stroke="#ff9ec4"/><text x="331" y="69" text-anchor="middle" class="txtm" style="fill:#ff9ec4">LOCATION</text>
+  <text x="380" y="50" class="txt" style="font-size:15px">since</text>
+  <text x="435" y="50" class="txt" style="font-size:15px">2026</text>
+  <rect x="431" y="55" width="60" height="20" rx="4" fill="#2a2413" stroke="#ffcf6e"/><text x="461" y="69" text-anchor="middle" class="txtm" style="fill:#ffcf6e">DATE</text>
+</svg>
+<div class="cap">NER tags spans of text with entity types — used in resume parsing, search, and knowledge extraction.</div>
+</div>
+
+<h2 id="lm">9. Language Models</h2>
+<p>A <b>language model (LM)</b> predicts the probability of the next word given the previous words. This simple idea powers autocomplete, translation, and ChatGPT.</p>
+<pre><code>"The sky is ___"   →   blue (0.7), clear (0.15), falling (0.01) ...</code></pre>
+
+<h4>The evolution</h4>
+<ul>
+<li><b>N-gram models</b> — predict the next word using only the last N−1 words, from raw counts. Example: a bigram model estimates P("blue" | "sky is") from how often "sky is blue" appeared. <b>Problems:</b> (1) can't see beyond N−1 words, so no long context; (2) the <b>sparsity problem</b> — most word combinations never appeared in training, giving probability 0 (fixed partially by smoothing).</li>
+<li><b>Neural LMs (RNN/LSTM)</b> — use a neural net with memory to model longer sequences and share knowledge between similar words via embeddings. Better context, but slow and still forgetful over long ranges.</li>
+<li><b>Transformer LMs (BERT, GPT)</b> — use self-attention to model the whole sequence in parallel with no forgetting. The current state of the art, and the basis of all modern LLMs.</li>
+</ul>
+<div class="analogy"><b>Autoregressive generation:</b> A generative LM writes text one token at a time — predict a word, append it, feed everything back in, predict the next. That loop, repeated, is how ChatGPT writes a whole paragraph.</div>
+
+<h2 id="seq">10. RNN/LSTM → Attention → Transformers</h2>
+<p>NLP deals with <b>sequences</b>, where order matters. The architectures evolved to handle this better and better:</p>
+<table>
+<tr><th>Approach</th><th>Idea</th><th>Weakness it fixed / had</th></tr>
+<tr><td><b>RNN</b></td><td>Reads word-by-word, carrying a memory</td><td>Forgets long-range context (vanishing gradient)</td></tr>
+<tr><td><b>LSTM/GRU</b></td><td>Adds gates to remember/forget selectively</td><td>Handles longer sequences, but still slow & sequential</td></tr>
+<tr><td><b>Attention</b></td><td>Lets each word look directly at every other word</td><td>Solves long-range dependencies</td></tr>
+<tr><td><b>Transformer</b></td><td>Attention + parallel processing (no recurrence)</td><td>Fast on GPUs, best quality → powers all modern NLP</td></tr>
+</table>
+<h4>Self-attention explained</h4>
+<p>For each word, the model asks: <i>"which other words matter for understanding me?"</i> It does this with three vectors per word — <b>Query</b> (what I'm looking for), <b>Key</b> (what I offer), and <b>Value</b> (my information). Each word's Query is compared against all Keys to get attention scores, then Values are blended by those scores into a new, context-aware vector.</p>
+<div class="analogy"><b>Library analogy:</b> your Query is a search request; each book's Key is its label; you match your query to the labels, then read a blend of the most relevant books' Values (content).</div>
+<p>In "The animal didn't cross the street because <i>it</i> was tired," attention lets "it" attach strongly to "animal", resolving the pronoun.</p>
+<p><b>Why Transformers beat RNNs:</b> (1) they process all words <b>in parallel</b> (fast on GPUs) instead of one at a time; (2) every word connects <b>directly</b> to every other word, so there's no long-range forgetting; (3) <b>multi-head attention</b> lets the model track several kinds of relationships at once (grammar, references, tense).</p>
+<div class="tip">See the dedicated <b>Transformers notes</b> for the full deep-dive (Q/K/V math, encoder vs decoder, multi-head attention, positional encoding).</div>
+
+<h2 id="llm">11. Modern LLMs & Tokenization</h2>
+<p><b>Large Language Models (LLMs)</b> like GPT, Claude, and LLaMA are giant Transformer-based language models trained on enormous text corpora. They can generate text, answer questions, translate, summarize, and code.</p>
+
+<h4>Subword tokenization (BPE)</h4>
+<p>LLMs don't use whole words (too many possible words). They use <b>Byte-Pair Encoding (BPE)</b> or similar to split text into <b>subword tokens</b>. Each token becomes an ID, then an embedding.</p>
+<pre><code>"tokenization"  →  ["token", "ization"]  →  IDs [3231, 1634]  →  vectors</code></pre>
+<p>A rough rule: <b>1 token ≈ 0.75 words</b> in English. This is why LLM pricing and context limits are measured in tokens.</p>
+
+<h4>Two families (recap)</h4>
+<table>
+<tr><th></th><th>BERT (encoder)</th><th>GPT (decoder)</th></tr>
+<tr><td>Reads</td><td>Bidirectional (whole sentence)</td><td>Left-to-right</td></tr>
+<tr><td>Great at</td><td>Understanding (classification, NER)</td><td>Generation (chat, writing)</td></tr>
+<tr><td>Trained by</td><td>Predicting masked words</td><td>Predicting the next word</td></tr>
+</table>
+
+<h4>How LLMs are built (3 stages)</h4>
+<ol>
+<li><b>Pretraining</b> — train on a massive chunk of the internet to predict the next token. Learns grammar, facts, reasoning. Extremely expensive (millions of dollars).</li>
+<li><b>Fine-tuning / Instruction tuning</b> — train further on examples of following instructions, so it becomes helpful rather than just autocompleting.</li>
+<li><b>RLHF (Reinforcement Learning from Human Feedback)</b> — humans rank responses; the model is tuned to prefer the good ones. This is what makes ChatGPT feel aligned and polite.</li>
+</ol>
+
+<h4>Decoding — how it picks the next word</h4>
+<p>At each step the model outputs a probability for every possible next token. How we choose affects the output:</p>
+<ul>
+<li><b>Greedy</b> — always pick the most likely token. Safe but repetitive.</li>
+<li><b>Temperature</b> — controls randomness. Low (0.2) = focused/deterministic; high (0.9) = creative/varied.</li>
+<li><b>Top-k / Top-p (nucleus)</b> — sample only from the most likely candidates, balancing quality and diversity.</li>
+</ul>
+
+<h4>Hallucination</h4>
+<div class="warn"><b>Hallucination</b> = an LLM confidently generating false information. It happens because the model predicts <i>plausible</i> text, not <i>true</i> text — it has no built-in fact-checker. Reduce it with <b>RAG</b> (ground answers in real sources), strict prompts ("answer only from the context"), low temperature, and forced citations.</div>
+
+<h4>Fine-tuning vs Prompting vs RAG</h4>
+<ul>
+<li><b>Fine-tuning</b> — further train the model on your data to change its behavior/skill. Use for style, tone, or a domain skill. (Your BERT SMS classifier is fine-tuned.)</li>
+<li><b>Prompting</b> — just describe the task in the input; the LLM adapts without retraining (zero-shot = no examples, few-shot = a few examples in the prompt).</li>
+<li><b>RAG</b> — inject external knowledge at query time. Use for facts/private data. Rule of thumb: <b>RAG for knowledge, fine-tuning for behavior.</b></li>
+</ul>
+
+<h2 id="rag">12. Semantic Search & RAG</h2>
+<p>A huge modern NLP application — and central to your projects.</p>
+
+<h4>Semantic Search</h4>
+<p>Instead of matching keywords, <b>embed</b> the query and documents into vectors, then find the documents whose vectors are <b>closest</b> (usually by <b>cosine similarity</b>). This finds results by <b>meaning</b>, not exact words — "car" matches "automobile."</p>
+
+<h4>RAG (Retrieval-Augmented Generation)</h4>
+<div class="fig">
+<svg viewBox="0 0 680 130" width="680">
+  <rect x="10" y="50" width="90" height="40" rx="8" fill="#20263f" stroke="#5ed3b3"/><text x="55" y="74" text-anchor="middle" class="txt">Question</text>
+  <rect x="120" y="50" width="110" height="40" rx="8" fill="#111a30" stroke="#6ea8fe"/><text x="175" y="68" text-anchor="middle" class="txt">Embed +</text><text x="175" y="83" text-anchor="middle" class="txtm">retrieve</text>
+  <rect x="250" y="50" width="120" height="40" rx="8" fill="#111a30" stroke="#6ea8fe"/><text x="310" y="68" text-anchor="middle" class="txt">Top-K chunks</text><text x="310" y="83" text-anchor="middle" class="txtm">from vector DB</text>
+  <rect x="390" y="50" width="120" height="40" rx="8" fill="#1a1330" stroke="#c58bff"/><text x="450" y="68" text-anchor="middle" class="txt">LLM</text><text x="450" y="83" text-anchor="middle" class="txtm">+ context</text>
+  <rect x="530" y="50" width="140" height="40" rx="8" fill="#14251f" stroke="#8be0c3"/><text x="600" y="68" text-anchor="middle" class="txt">Grounded answer</text><text x="600" y="83" text-anchor="middle" class="txtm">with citations</text>
+  <g stroke="#5ed3b3" stroke-width="2" marker-end="url(#rg)">
+  <line x1="100" y1="70" x2="118" y2="70"/><line x1="230" y1="70" x2="248" y2="70"/><line x1="370" y1="70" x2="388" y2="70"/><line x1="510" y1="70" x2="528" y2="70"/>
+  </g>
+  <defs><marker id="rg" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#5ed3b3"/></marker></defs>
+</svg>
+<div class="cap">RAG: retrieve relevant chunks, feed them to the LLM as context, and generate a grounded, citable answer.</div>
+</div>
+<h4>The full RAG pipeline in detail</h4>
+<p><b>Offline (indexing):</b></p>
+<ol>
+<li><b>Load</b> your documents (PDFs, web pages, DB records).</li>
+<li><b>Chunk</b> them into passages — using sentence-aware splitting with overlap so meaning isn't cut mid-sentence.</li>
+<li><b>Embed</b> each chunk into a vector.</li>
+<li><b>Store</b> the vectors in a vector database (FAISS, Pinecone, Chroma).</li>
+</ol>
+<p><b>Online (query):</b></p>
+<ol>
+<li><b>Embed</b> the user's question.</li>
+<li><b>Retrieve</b> the top-K most similar chunks (by cosine similarity).</li>
+<li>Optionally <b>rerank</b> them with a cross-encoder for sharper relevance.</li>
+<li><b>Stuff</b> those chunks + the question into a prompt and let the LLM generate a grounded, cited answer.</li>
+</ol>
+<p>RAG grounds an LLM in real, up-to-date, private data — reducing hallucination. <b>Hybrid search</b> (semantic embeddings + keyword BM25) beats either alone: embeddings catch <b>meaning</b> (synonyms, paraphrase), BM25 catches <b>exact terms</b> (product codes, names, IDs). This is exactly what you built in DocMind and the teleshop RAG.</p>
+<div class="tip"><b>Key insight:</b> "Bad retrieval = bad answer." In RAG, the quality of the retrieved chunks matters more than the LLM — if you feed it the wrong context, even GPT-4 gives a wrong answer.</div>
+
+<h2 id="metrics">13. Evaluation Metrics for NLP</h2>
+<p>Different tasks need different metrics — you can't measure a translation the same way you measure a classifier.</p>
+<table>
+<tr><th>Metric</th><th>Used for</th><th>Meaning</th></tr>
+<tr><td><b>Accuracy / F1</b></td><td>Classification, NER</td><td>Correctness (F1 balances precision & recall — key for imbalanced text)</td></tr>
+<tr><td><b>Perplexity</b></td><td>Language models</td><td>How "surprised" the model is by real text. <b>Lower = better.</b></td></tr>
+<tr><td><b>BLEU</b></td><td>Machine translation</td><td>N-gram <b>precision</b> vs reference. Higher = better.</td></tr>
+<tr><td><b>ROUGE</b></td><td>Summarization</td><td>N-gram <b>recall</b> vs reference. Higher = better.</td></tr>
+<tr><td><b>Cosine similarity</b></td><td>Embeddings / semantic search</td><td>How similar two text vectors are (−1 to 1)</td></tr>
+</table>
+
+<h4>The details</h4>
+<ul>
+<li><b>Perplexity</b> — intuitively, "on average, how many words is the model choosing between at each step?" A perplexity of 10 means it's as confused as if picking uniformly among 10 words. Lower = more confident and accurate.</li>
+<li><b>BLEU</b> (Bilingual Evaluation Understudy) — measures how many n-grams in the machine translation also appear in the human reference. It's <b>precision-focused</b> (did the output use correct phrases?), with a penalty for translations that are too short.</li>
+<li><b>ROUGE</b> (Recall-Oriented Understudy for Gisting Evaluation) — measures how many n-grams in the human reference summary appear in the generated summary. It's <b>recall-focused</b> (did the summary capture the key content?).</li>
+</ul>
+<div class="tip"><b>Memory hook:</b> <b>B</b>LEU → translation, <b>precision</b> ("Be precise"). <b>R</b>OUGE → summary, <b>recall</b> ("Recall the main points").</div>
+<div class="warn"><b>Modern note:</b> BLEU/ROUGE only measure word overlap, not meaning — a perfect paraphrase with different words scores low. Newer evaluation uses embedding-based scores (BERTScore) or <b>LLM-as-a-judge</b> (an LLM rates the output), which is what you used in your SMS classifier evaluation.</div>
+
+<h2 id="qa">14. Interview Q&A</h2>
+<div class="qa"><b>Q: What is NLP and why is it hard?</b><br>Getting computers to understand/generate human language. Hard because language is ambiguous, context-dependent, full of synonyms, sarcasm, and needs world knowledge.</div>
+<div class="qa"><b>Q: Stemming vs lemmatization?</b><br>Both reduce words to a base form. Stemming chops endings crudely ("studies"→"studi"); lemmatization uses a dictionary to find the real root ("studies"→"study"). Lemmatization is slower but accurate.</div>
+<div class="qa"><b>Q: Bag of Words vs TF-IDF?</b><br>BoW counts word occurrences (treats all words equally). TF-IDF weights words by how frequent they are in a document but how rare across the corpus, so distinctive words score higher.</div>
+<div class="qa"><b>Q: What are word embeddings? Why better than one-hot?</b><br>Dense vectors that capture meaning — similar words get similar vectors, and you can do analogies (king − man + woman ≈ queen). One-hot vectors are huge, sparse, and carry no meaning.</div>
+<div class="qa"><b>Q: Word2Vec vs BERT embeddings?</b><br>Word2Vec gives one fixed vector per word regardless of context. BERT gives context-dependent vectors — "bank" differs in "river bank" vs "bank account."</div>
+<div class="qa"><b>Q: How does Word2Vec learn embeddings?</b><br>A shallow neural net predicts a word from its neighbors (CBOW) or neighbors from a word (Skip-gram); the learned hidden weights are the embeddings.</div>
+<div class="qa"><b>Q: What is tokenization? Why subword?</b><br>Splitting text into tokens. Subword tokenization (BPE) breaks rare words into known pieces so the model can handle any word, even unseen ones.</div>
+<div class="qa"><b>Q: What is a language model?</b><br>A model that predicts the probability of the next word given previous words. Foundation of autocomplete, translation, and LLMs.</div>
+<div class="qa"><b>Q: BERT vs GPT?</b><br>BERT = encoder, bidirectional, great at understanding (classification/NER), trained by predicting masked words. GPT = decoder, left-to-right, great at generation, trained by predicting the next word.</div>
+<div class="qa"><b>Q: What is NER?</b><br>Named Entity Recognition — identifying and labeling entities (people, places, dates, organizations) in text.</div>
+<div class="qa"><b>Q: How do you evaluate a translation vs a summary?</b><br>Translation → BLEU (n-gram precision vs reference). Summary → ROUGE (overlap/recall vs reference).</div>
+<div class="qa"><b>Q: Why do we remove stopwords, and when should we NOT?</b><br>Remove them for classic models (BoW/TF-IDF) to cut noise. Don't remove for sentiment ("not good") or Transformers, where they carry meaning.</div>
+<div class="qa"><b>Q: What is semantic search?</b><br>Searching by meaning: embed query and documents, then find the closest vectors by cosine similarity — so "car" matches "automobile" even without exact words.</div>
+
+<h2 id="cheat">15. One-Glance Cheat Sheet</h2>
+<div class="card">
+<ul>
+<li><b>NLP core problem:</b> turn messy text into meaningful numbers, do math, turn back into text</li>
+<li><b>Preprocess:</b> tokenize → lowercase → (stopwords) → stem/lemmatize</li>
+<li><b>Stemming</b> = crude chop; <b>Lemmatization</b> = real dictionary root</li>
+<li><b>Text→numbers evolution:</b> BoW → TF-IDF → Word2Vec → BERT (contextual)</li>
+<li><b>TF-IDF</b> = frequent-in-doc × rare-in-corpus (highlights distinctive words = BM25)</li>
+<li><b>Word2Vec</b> = one fixed vector per word; <b>BERT</b> = context-aware vectors</li>
+<li><b>king − man + woman ≈ queen</b> (embeddings capture relationships)</li>
+<li><b>Tasks:</b> classification, sentiment, NER, POS, translation, summarization, QA, generation</li>
+<li><b>Language model</b> = predict the next word</li>
+<li><b>Architectures:</b> RNN → LSTM → Attention → Transformer (BERT/GPT)</li>
+<li><b>Tokenization:</b> subword (BPE); 1 token ≈ 0.75 words</li>
+<li><b>Metrics:</b> F1 (classification), Perplexity (LM, lower=better), BLEU (translation), ROUGE (summary)</li>
+<li><b>RAG</b> = retrieve relevant chunks → feed to LLM → grounded answer</li>
+</ul>
+</div>
+
+<hr>
+<p class="sub">For interviews focus on: text representation evolution (BoW→TF-IDF→Word2Vec→BERT), stemming vs lemmatization, embeddings & the king-queen analogy, and BERT vs GPT. 🚀</p>
+
+</div>
+</body>
+</html>

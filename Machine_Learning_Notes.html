@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Machine Learning — Detailed Visual Notes</title>
+<style>
+  :root{
+    --bg:#0f1220; --card:#171b2e; --ink:#e8eaf2; --muted:#a7adc4;
+    --accent:#6ea8fe; --accent2:#8be0c3; --line:#2a2f4a; --code:#1d2238; --warn:#ffcf6e; --pink:#ff9ec4;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.7;font-size:16px}
+  .wrap{max-width:920px;margin:0 auto;padding:32px 20px 90px}
+  h1{font-size:2.2rem;margin:.2em 0}
+  h2{font-size:1.55rem;margin-top:2.4em;padding-bottom:.3em;border-bottom:2px solid var(--line);color:var(--accent)}
+  h3{font-size:1.22rem;margin-top:1.7em;color:var(--accent2)}
+  h4{font-size:1.05rem;margin-top:1.3em;color:var(--pink)}
+  .sub{color:var(--muted);font-size:1.05rem}
+  code{background:var(--code);padding:2px 6px;border-radius:5px;font-family:Consolas,Monaco,monospace;font-size:.9em;color:#ffd9a0}
+  pre{background:var(--code);padding:14px 16px;border-radius:10px;overflow-x:auto;border:1px solid var(--line)}
+  pre code{background:none;padding:0;color:#d7e0ff}
+  table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.95rem}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  th{background:#20263f;color:var(--accent)}
+  tr:nth-child(even){background:#141830}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin:16px 0}
+  .tip{border-left:4px solid var(--accent2);background:#14251f;padding:10px 16px;border-radius:8px;margin:14px 0}
+  .warn{border-left:4px solid var(--warn);background:#2a2413;padding:10px 16px;border-radius:8px;margin:14px 0}
+  .analogy{border-left:4px solid var(--accent);background:#111a30;padding:10px 16px;border-radius:8px;margin:14px 0}
+  .fig{background:#0c1a2e;border:1px solid var(--line);border-radius:12px;padding:18px;margin:18px 0;text-align:center}
+  .fig .cap{color:var(--muted);font-size:.9rem;margin-top:10px;font-style:italic}
+  .toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 22px;columns:2;column-gap:32px}
+  .toc a{color:var(--accent);text-decoration:none;font-size:.92rem}
+  .toc a:hover{text-decoration:underline}
+  .qa{margin:10px 0}
+  .qa b{color:var(--accent2)}
+  hr{border:none;border-top:1px solid var(--line);margin:2em 0}
+  svg{max-width:100%;height:auto}
+  .txt{fill:var(--ink);font-size:13px;font-family:Segoe UI,sans-serif}
+  .txtm{fill:var(--muted);font-size:12px;font-family:Segoe UI,sans-serif}
+  @media(max-width:640px){.toc{columns:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>🤖 Machine Learning — Detailed Visual Notes</h1>
+<p class="sub">Every concept explained in depth, with diagrams and graphs to make it click. Read section by section.</p>
+
+<div class="toc">
+<a href="#intro">1. What is Machine Learning</a><br>
+<a href="#types">2. Types of ML (+ diagrams)</a><br>
+<a href="#workflow">3. The ML Workflow</a><br>
+<a href="#preprocess">4. Data Preprocessing</a><br>
+<a href="#biasvar">5. Overfitting, Underfitting & Bias-Variance</a><br>
+<a href="#linreg">6. Linear Regression</a><br>
+<a href="#regular">7. Regularization (Ridge/Lasso)</a><br>
+<a href="#logreg">8. Logistic Regression (+ sigmoid)</a><br>
+<a href="#knn">9. KNN</a><br>
+<a href="#svm">10. SVM (+ margin diagram)</a><br>
+<a href="#tree">11. Decision Trees</a><br>
+<a href="#ensemble">12. Random Forest & Boosting</a><br>
+<a href="#unsup">13. Clustering & PCA</a><br>
+<a href="#metrics">14. Evaluation Metrics (+ ROC)</a><br>
+<a href="#gd">15. Gradient Descent</a><br>
+<a href="#qa">16. Interview Q&A</a><br>
+</div>
+
+<h2 id="intro">1. What is Machine Learning?</h2>
+<p><b>Machine Learning (ML)</b> is teaching computers to learn patterns from data and make predictions — <b>without being explicitly programmed with rules</b>. Instead of a human writing every rule, the machine discovers the rules from examples.</p>
+
+<div class="fig">
+<svg viewBox="0 0 640 220" width="640">
+  <!-- Traditional programming -->
+  <text x="150" y="24" text-anchor="middle" class="txt" style="fill:#ff9ec4;font-weight:bold">Traditional Programming</text>
+  <rect x="40" y="45" width="90" height="40" rx="8" fill="#20263f" stroke="#6ea8fe"/>
+  <text x="85" y="70" text-anchor="middle" class="txt">Rules</text>
+  <rect x="40" y="100" width="90" height="40" rx="8" fill="#20263f" stroke="#6ea8fe"/>
+  <text x="85" y="125" text-anchor="middle" class="txt">Data</text>
+  <rect x="200" y="72" width="90" height="42" rx="8" fill="#14251f" stroke="#8be0c3"/>
+  <text x="245" y="98" text-anchor="middle" class="txt">Answers</text>
+  <line x1="130" y1="65" x2="200" y2="88" stroke="#6ea8fe" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="130" y1="120" x2="200" y2="98" stroke="#6ea8fe" stroke-width="2" marker-end="url(#a)"/>
+  <!-- ML -->
+  <text x="490" y="24" text-anchor="middle" class="txt" style="fill:#ff9ec4;font-weight:bold">Machine Learning</text>
+  <rect x="380" y="45" width="90" height="40" rx="8" fill="#20263f" stroke="#6ea8fe"/>
+  <text x="425" y="70" text-anchor="middle" class="txt">Data</text>
+  <rect x="380" y="100" width="90" height="40" rx="8" fill="#20263f" stroke="#6ea8fe"/>
+  <text x="425" y="125" text-anchor="middle" class="txt">Answers</text>
+  <rect x="540" y="72" width="90" height="42" rx="8" fill="#14251f" stroke="#8be0c3"/>
+  <text x="585" y="92" text-anchor="middle" class="txt">Rules</text>
+  <text x="585" y="107" text-anchor="middle" class="txtm">(model)</text>
+  <line x1="470" y1="65" x2="540" y2="88" stroke="#6ea8fe" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="470" y1="120" x2="540" y2="98" stroke="#6ea8fe" stroke-width="2" marker-end="url(#a)"/>
+  <defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#6ea8fe"/></marker></defs>
+</svg>
+<div class="cap">Traditional programming needs rules; ML learns the rules from data + answers.</div>
+</div>
+
+<div class="analogy">
+<b>Analogy:</b> Traditional programming is like giving someone a recipe (the rules). Machine learning is like showing someone 1,000 finished dishes and letting them figure out the recipe themselves.
+</div>
+
+<div class="card"><b>Real-world examples:</b> spam detection, Netflix recommendations, loan default prediction, house-price prediction, face recognition, fraud detection.</div>
+
+<h2 id="types">2. Types of Machine Learning</h2>
+<p>There are three main families, based on what kind of data and feedback the model gets.</p>
+
+<div class="fig">
+<svg viewBox="0 0 660 250" width="660">
+  <!-- Supervised -->
+  <rect x="10" y="20" width="200" height="210" rx="12" fill="#111a30" stroke="#6ea8fe"/>
+  <text x="110" y="45" text-anchor="middle" class="txt" style="fill:#6ea8fe;font-weight:bold">Supervised</text>
+  <text x="110" y="66" text-anchor="middle" class="txtm">Labeled data</text>
+  <circle cx="60" cy="110" r="12" fill="#6ea8fe"/><text x="60" y="114" text-anchor="middle" class="txtm" style="fill:#0f1220">🐱</text>
+  <text x="120" y="114" class="txtm">= "cat" (label)</text>
+  <circle cx="60" cy="150" r="12" fill="#ff9ec4"/><text x="120" y="154" class="txtm">= "dog" (label)</text>
+  <text x="110" y="200" text-anchor="middle" class="txtm">Predict labels for</text>
+  <text x="110" y="216" text-anchor="middle" class="txtm">new inputs</text>
+  <!-- Unsupervised -->
+  <rect x="230" y="20" width="200" height="210" rx="12" fill="#14251f" stroke="#8be0c3"/>
+  <text x="330" y="45" text-anchor="middle" class="txt" style="fill:#8be0c3;font-weight:bold">Unsupervised</text>
+  <text x="330" y="66" text-anchor="middle" class="txtm">No labels</text>
+  <circle cx="290" cy="120" r="9" fill="#8be0c3"/><circle cx="310" cy="135" r="9" fill="#8be0c3"/><circle cx="300" cy="150" r="9" fill="#8be0c3"/>
+  <circle cx="370" cy="115" r="9" fill="#ffcf6e"/><circle cx="385" cy="135" r="9" fill="#ffcf6e"/><circle cx="365" cy="150" r="9" fill="#ffcf6e"/>
+  <text x="330" y="205" text-anchor="middle" class="txtm">Find groups /</text>
+  <text x="330" y="221" text-anchor="middle" class="txtm">patterns</text>
+  <!-- Reinforcement -->
+  <rect x="450" y="20" width="200" height="210" rx="12" fill="#2a2413" stroke="#ffcf6e"/>
+  <text x="550" y="45" text-anchor="middle" class="txt" style="fill:#ffcf6e;font-weight:bold">Reinforcement</text>
+  <text x="550" y="66" text-anchor="middle" class="txtm">Rewards/penalties</text>
+  <rect x="510" y="95" width="80" height="30" rx="6" fill="#20263f" stroke="#ffcf6e"/><text x="550" y="115" text-anchor="middle" class="txtm">Agent</text>
+  <path d="M550,125 q40,20 0,40" fill="none" stroke="#ffcf6e" stroke-width="2" marker-end="url(#b)"/>
+  <text x="612" y="150" class="txtm">act</text>
+  <path d="M550,165 q-40,-20 0,-40" fill="none" stroke="#8be0c3" stroke-width="2" marker-end="url(#c)"/>
+  <text x="470" y="150" class="txtm">reward</text>
+  <text x="550" y="215" text-anchor="middle" class="txtm">Learn best actions</text>
+  <defs>
+    <marker id="b" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ffcf6e"/></marker>
+    <marker id="c" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#8be0c3"/></marker>
+  </defs>
+</svg>
+<div class="cap">The three types of machine learning.</div>
+</div>
+
+<h3>2.1 Supervised Learning (labeled data)</h3>
+<p>The data comes with the <b>correct answers (labels)</b>. The model learns to map input → output. Two sub-types:</p>
+<ul>
+<li><b>Classification</b> — predict a <b>category</b> (spam/not-spam, cat/dog, default/no-default).</li>
+<li><b>Regression</b> — predict a <b>number</b> (house price, temperature, salary).</li>
+</ul>
+<div class="analogy"><b>Analogy:</b> A student studying with an answer key — every practice question has the correct answer, so patterns are easy to learn.</div>
+
+<h3>2.2 Unsupervised Learning (no labels)</h3>
+<p>The data has <b>no answers</b>. The model finds hidden structure on its own.</p>
+<ul>
+<li><b>Clustering</b> — group similar items (customer segmentation).</li>
+<li><b>Dimensionality Reduction</b> — compress features (PCA).</li>
+</ul>
+<div class="analogy"><b>Analogy:</b> Sorting a pile of mixed photos into groups by similarity, without being told the categories.</div>
+
+<h3>2.3 Reinforcement Learning (rewards)</h3>
+<p>An <b>agent</b> learns by trial and error, getting <b>rewards</b> for good actions and <b>penalties</b> for bad ones. Powers game AI (AlphaGo), robotics, self-driving.</p>
+<div class="analogy"><b>Analogy:</b> Training a dog — treats for good behavior, "no" for bad. Over time it learns what to do.</div>
+
+<h2 id="workflow">3. The Machine Learning Workflow</h2>
+<p>Every ML project follows these steps in order:</p>
+<div class="fig">
+<svg viewBox="0 0 700 120" width="700">
+  <g class="txt" font-size="12">
+  <rect x="8" y="45" width="90" height="40" rx="8" fill="#20263f" stroke="#6ea8fe"/><text x="53" y="63" text-anchor="middle" class="txt">Collect</text><text x="53" y="78" text-anchor="middle" class="txt">Data</text>
+  <rect x="118" y="45" width="90" height="40" rx="8" fill="#20263f" stroke="#6ea8fe"/><text x="163" y="63" text-anchor="middle" class="txt">Clean +</text><text x="163" y="78" text-anchor="middle" class="txt">EDA</text>
+  <rect x="228" y="45" width="90" height="40" rx="8" fill="#20263f" stroke="#6ea8fe"/><text x="273" y="63" text-anchor="middle" class="txt">Feature</text><text x="273" y="78" text-anchor="middle" class="txt">Engineering</text>
+  <rect x="338" y="45" width="90" height="40" rx="8" fill="#20263f" stroke="#6ea8fe"/><text x="383" y="63" text-anchor="middle" class="txt">Train</text><text x="383" y="78" text-anchor="middle" class="txt">Model</text>
+  <rect x="448" y="45" width="90" height="40" rx="8" fill="#20263f" stroke="#6ea8fe"/><text x="493" y="68" text-anchor="middle" class="txt">Evaluate</text>
+  <rect x="558" y="45" width="90" height="40" rx="8" fill="#14251f" stroke="#8be0c3"/><text x="603" y="63" text-anchor="middle" class="txt">Deploy +</text><text x="603" y="78" text-anchor="middle" class="txt">Monitor</text>
+  </g>
+  <g stroke="#6ea8fe" stroke-width="2" marker-end="url(#w)">
+  <line x1="98" y1="65" x2="116" y2="65"/><line x1="208" y1="65" x2="226" y2="65"/><line x1="318" y1="65" x2="336" y2="65"/><line x1="428" y1="65" x2="446" y2="65"/><line x1="538" y1="65" x2="556" y2="65"/>
+  </g>
+  <path d="M493,45 C493,15 383,15 383,43" fill="none" stroke="#ffcf6e" stroke-width="2" stroke-dasharray="4" marker-end="url(#w2)"/>
+  <text x="438" y="12" text-anchor="middle" class="txtm">tune &amp; repeat</text>
+  <defs>
+    <marker id="w" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#6ea8fe"/></marker>
+    <marker id="w2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ffcf6e"/></marker>
+  </defs>
+</svg>
+<div class="cap">The ML pipeline — you loop back to tune until performance is good.</div>
+</div>
+<div class="tip"><b>Reality check:</b> ~80% of ML work is data cleaning and feature engineering, not the model itself.</div>
+
+<h2 id="preprocess">4. Data Preprocessing</h2>
+<p>Raw data is messy. We must prepare it before modeling.</p>
+
+<h3>4.1 Handling Missing Values</h3>
+<ul>
+<li><b>Drop</b> rows/columns (if very few missing, or a column is mostly empty).</li>
+<li><b>Impute</b> — fill with mean/median (numeric) or mode (categorical).</li>
+<li><b>Flag</b> — add an "is_missing" indicator if the missingness itself carries meaning.</li>
+</ul>
+
+<h3>4.2 Encoding Categorical Data (text → numbers)</h3>
+<p>Models need numbers. Two main ways:</p>
+<ul>
+<li><b>Label Encoding</b> — assign each category a number (Low=0, Med=1, High=2). Use for <b>ordinal</b> data where order matters.</li>
+<li><b>One-Hot Encoding</b> — a 0/1 column per category. Use for <b>nominal</b> data (no order) so the model doesn't assume a false ranking.</li>
+</ul>
+<pre><code>Color: [Red, Green, Blue]
+One-Hot →   Red  Green  Blue
+             1     0     0
+             0     1     0
+             0     0     1</code></pre>
+
+<h3>4.3 Feature Scaling</h3>
+<p>Bring features to a similar range so no single one dominates (vital for distance- and gradient-based models).</p>
+<table>
+<tr><th>Method</th><th>Formula</th><th>Result</th><th>Use for</th></tr>
+<tr><td><b>Standardization</b></td><td>(x − mean) / std</td><td>mean 0, std 1</td><td>Linear/Logistic Reg, SVM, PCA</td></tr>
+<tr><td><b>Normalization</b></td><td>(x − min)/(max − min)</td><td>range [0,1]</td><td>Neural nets, KNN</td></tr>
+</table>
+<div class="warn"><b>Note:</b> Tree-based models (Decision Tree, Random Forest, XGBoost) do NOT need scaling — they split on thresholds, not distances.</div>
+
+<h2 id="biasvar">5. Overfitting, Underfitting & Bias-Variance</h2>
+<p>This is one of the most important concepts in all of ML — expect it in every interview.</p>
+
+<div class="fig">
+<svg viewBox="0 0 660 240" width="660">
+  <!-- three panels -->
+  <g>
+  <text x="110" y="20" text-anchor="middle" class="txt" style="fill:#ffcf6e;font-weight:bold">Underfitting</text>
+  <text x="110" y="36" text-anchor="middle" class="txtm">(too simple / high bias)</text>
+  <rect x="20" y="45" width="180" height="150" fill="#0c1424" stroke="#2a2f4a"/>
+  <!-- points -->
+  <circle cx="50" cy="160" r="4" fill="#6ea8fe"/><circle cx="75" cy="140" r="4" fill="#6ea8fe"/><circle cx="95" cy="150" r="4" fill="#6ea8fe"/><circle cx="120" cy="110" r="4" fill="#6ea8fe"/><circle cx="140" cy="120" r="4" fill="#6ea8fe"/><circle cx="170" cy="80" r="4" fill="#6ea8fe"/><circle cx="110" cy="95" r="4" fill="#6ea8fe"/>
+  <line x1="35" y1="170" x2="185" y2="90" stroke="#ffcf6e" stroke-width="3"/>
+  </g>
+  <g>
+  <text x="330" y="20" text-anchor="middle" class="txt" style="fill:#8be0c3;font-weight:bold">Good Fit</text>
+  <text x="330" y="36" text-anchor="middle" class="txtm">(balanced)</text>
+  <rect x="240" y="45" width="180" height="150" fill="#0c1424" stroke="#2a2f4a"/>
+  <circle cx="270" cy="160" r="4" fill="#6ea8fe"/><circle cx="295" cy="140" r="4" fill="#6ea8fe"/><circle cx="315" cy="150" r="4" fill="#6ea8fe"/><circle cx="340" cy="110" r="4" fill="#6ea8fe"/><circle cx="360" cy="120" r="4" fill="#6ea8fe"/><circle cx="390" cy="80" r="4" fill="#6ea8fe"/><circle cx="330" cy="95" r="4" fill="#6ea8fe"/>
+  <path d="M255,168 Q320,150 340,115 T405,85" fill="none" stroke="#8be0c3" stroke-width="3"/>
+  </g>
+  <g>
+  <text x="550" y="20" text-anchor="middle" class="txt" style="fill:#ff9ec4;font-weight:bold">Overfitting</text>
+  <text x="550" y="36" text-anchor="middle" class="txtm">(too complex / high variance)</text>
+  <rect x="460" y="45" width="180" height="150" fill="#0c1424" stroke="#2a2f4a"/>
+  <circle cx="490" cy="160" r="4" fill="#6ea8fe"/><circle cx="515" cy="140" r="4" fill="#6ea8fe"/><circle cx="535" cy="150" r="4" fill="#6ea8fe"/><circle cx="560" cy="110" r="4" fill="#6ea8fe"/><circle cx="580" cy="120" r="4" fill="#6ea8fe"/><circle cx="610" cy="80" r="4" fill="#6ea8fe"/><circle cx="550" cy="95" r="4" fill="#6ea8fe"/>
+  <path d="M490,160 L515,140 L535,150 L550,95 L560,110 L580,120 L610,80" fill="none" stroke="#ff9ec4" stroke-width="2.5"/>
+  </g>
+</svg>
+<div class="cap">Underfitting misses the pattern; overfitting chases every point (incl. noise); good fit captures the trend.</div>
+</div>
+
+<h3>Overfitting (high variance)</h3>
+<p>The model <b>memorizes</b> the training data including noise. Great on training, <b>bad on new data</b>.</p>
+<div class="analogy"><b>Analogy:</b> A student who memorizes past exam answers word-for-word but can't solve a slightly different question.</div>
+
+<h3>Underfitting (high bias)</h3>
+<p>The model is <b>too simple</b> to capture the pattern. Bad on <b>both</b> training and test data.</p>
+<div class="analogy"><b>Analogy:</b> A student who barely studied — fails both practice and real exams.</div>
+
+<h3>The Bias-Variance Tradeoff</h3>
+<p>As you make a model more complex: <b>bias goes down</b> (fits training better) but <b>variance goes up</b> (more sensitive to data). Total error is a U-shape — the sweet spot is the bottom.</p>
+
+<div class="fig">
+<svg viewBox="0 0 480 280" width="480">
+  <!-- axes -->
+  <line x1="60" y1="240" x2="450" y2="240" stroke="#a7adc4" stroke-width="1.5"/>
+  <line x1="60" y1="30" x2="60" y2="240" stroke="#a7adc4" stroke-width="1.5"/>
+  <text x="255" y="270" text-anchor="middle" class="txtm">Model Complexity →</text>
+  <text x="20" y="135" text-anchor="middle" class="txtm" transform="rotate(-90 20,135)">Error →</text>
+  <!-- bias curve (decreasing) -->
+  <path d="M70,60 Q180,200 440,225" fill="none" stroke="#ffcf6e" stroke-width="2.5"/>
+  <text x="120" y="70" class="txtm" style="fill:#ffcf6e">Bias²</text>
+  <!-- variance curve (increasing) -->
+  <path d="M70,230 Q300,215 440,60" fill="none" stroke="#ff9ec4" stroke-width="2.5"/>
+  <text x="400" y="80" class="txtm" style="fill:#ff9ec4">Variance</text>
+  <!-- total error U -->
+  <path d="M70,110 Q255,120 440,110" fill="none" stroke="#8be0c3" stroke-width="3"/>
+  <path d="M70,110 Q160,80 255,150 Q350,80 440,110" fill="none" stroke="#8be0c3" stroke-width="3"/>
+  <text x="90" y="100" class="txtm" style="fill:#8be0c3">Total Error</text>
+  <!-- sweet spot -->
+  <line x1="255" y1="150" x2="255" y2="240" stroke="#6ea8fe" stroke-dasharray="4"/>
+  <circle cx="255" cy="150" r="5" fill="#6ea8fe"/>
+  <text x="255" y="255" text-anchor="middle" class="txtm" style="fill:#6ea8fe">sweet spot</text>
+  <text x="90" y="225" class="txtm">underfit</text>
+  <text x="400" y="225" class="txtm">overfit</text>
+</svg>
+<div class="cap">Total error = bias² + variance + noise. The best model minimizes the sum (the green U's bottom).</div>
+</div>
+
+<table>
+<tr><th>Term</th><th>Meaning</th><th>Symptom</th></tr>
+<tr><td><b>Bias</b></td><td>Error from too-simple assumptions</td><td>Underfitting — bad on train AND test</td></tr>
+<tr><td><b>Variance</b></td><td>Error from being too sensitive to training data</td><td>Overfitting — great on train, bad on test</td></tr>
+</table>
+
+<h4>How to actually detect which one you have</h4>
+<p>Compare training error vs test/validation error:</p>
+<table>
+<tr><th>Training error</th><th>Test error</th><th>Diagnosis</th></tr>
+<tr><td>High</td><td>High</td><td><b>Underfitting</b> (high bias) — model too simple</td></tr>
+<tr><td>Low</td><td>High (big gap)</td><td><b>Overfitting</b> (high variance) — memorized training data</td></tr>
+<tr><td>Low</td><td>Low</td><td><b>Good fit</b> — the goal</td></tr>
+</table>
+<p>The mathematical breakdown of a model's expected error is: <b>Total Error = Bias² + Variance + Irreducible Noise</b>. You can't remove the noise (randomness in the data), but you trade off bias and variance by tuning model complexity.</p>
+
+<h4>How to fix each</h4>
+<p><b>Fix underfitting (reduce bias):</b> use a more complex model, add more/better features, reduce regularization, train longer.</p>
+<p><b>Fix overfitting (reduce variance):</b> more training data · simpler model · regularization (L1/L2) · cross-validation · dropout (NNs) · fewer features · early stopping.</p>
+
+<h2 id="linreg">6. Linear Regression</h2>
+<p>The simplest regression algorithm. It fits the <b>best straight line</b> through the data to predict a number.</p>
+<pre><code>y = w₁x₁ + w₂x₂ + ... + b
+  y = prediction (e.g., house price)
+  w = weights (importance of each feature)
+  b = bias/intercept</code></pre>
+
+<div class="fig">
+<svg viewBox="0 0 460 250" width="460">
+  <line x1="50" y1="210" x2="430" y2="210" stroke="#a7adc4"/>
+  <line x1="50" y1="20" x2="50" y2="210" stroke="#a7adc4"/>
+  <text x="240" y="240" text-anchor="middle" class="txtm">house size →</text>
+  <text x="20" y="115" text-anchor="middle" class="txtm" transform="rotate(-90 20,115)">price →</text>
+  <!-- points -->
+  <circle cx="80" cy="185" r="4" fill="#6ea8fe"/><circle cx="120" cy="170" r="4" fill="#6ea8fe"/><circle cx="150" cy="150" r="4" fill="#6ea8fe"/><circle cx="190" cy="155" r="4" fill="#6ea8fe"/><circle cx="220" cy="120" r="4" fill="#6ea8fe"/><circle cx="260" cy="110" r="4" fill="#6ea8fe"/><circle cx="300" cy="85" r="4" fill="#6ea8fe"/><circle cx="340" cy="70" r="4" fill="#6ea8fe"/><circle cx="380" cy="55" r="4" fill="#6ea8fe"/>
+  <!-- best fit line -->
+  <line x1="65" y1="190" x2="400" y2="45" stroke="#8be0c3" stroke-width="3"/>
+  <!-- error line example -->
+  <line x1="220" y1="120" x2="220" y2="143" stroke="#ff9ec4" stroke-width="2" stroke-dasharray="3"/>
+  <text x="228" y="138" class="txtm" style="fill:#ff9ec4">error</text>
+</svg>
+<div class="cap">The best-fit line minimizes the total squared vertical distance (error) to all points.</div>
+</div>
+
+<h4>How does it actually "learn" the best line?</h4>
+<p>It searches for the weights (w) and bias (b) that make predictions as close as possible to the true values. "Closeness" is measured by the <b>cost function</b>, Mean Squared Error:</p>
+<pre><code>MSE = (1/n) × Σ (yᵢ_actual − yᵢ_predicted)²</code></pre>
+<p>Why <b>squared</b>? Two reasons: (1) it makes every error positive so a +5 and a −5 error don't cancel out, and (2) it punishes big mistakes far more than small ones — an error of 10 contributes 100, while an error of 2 contributes only 4. This pushes the model to avoid large errors.</p>
+
+<h4>Two ways to find the weights</h4>
+<ul>
+<li><b>Normal Equation</b> — a direct formula <code>w = (XᵀX)⁻¹Xᵀy</code> that solves for the best weights in one shot. Great for small datasets, but the matrix inversion is slow (O(n³)) when you have many features.</li>
+<li><b>Gradient Descent</b> — start with random weights and iteratively nudge them downhill on the MSE curve until you reach the minimum (see §15). This scales to millions of features and is what's used in practice for large data.</li>
+</ul>
+
+<h4>Worked example</h4>
+<pre><code>price = 5000·(size_sqft) + 200000·(bedrooms) − 1000·(age_years) + 100000
+
+A 1000 sqft, 2-bedroom, 10-year-old house:
+price = 5000·1000 + 200000·2 − 1000·10 + 100000
+      = 5,000,000 + 400,000 − 10,000 + 100,000
+      = ₹5,490,000</code></pre>
+<p>Each weight is directly interpretable: every extra sqft adds ₹5,000, every bedroom adds ₹2,00,000, every year of age subtracts ₹1,000. This transparency is why linear regression is loved in fields that need explainability.</p>
+
+<h4>The 5 assumptions (and why they matter)</h4>
+<ol>
+<li><b>Linearity</b> — the true relationship is a straight line. If it's curved, a line underfits (fix: polynomial features).</li>
+<li><b>No multicollinearity</b> — features shouldn't be strongly correlated with each other (e.g., "age" and "years since birth"), or the weights become unstable and unreadable.</li>
+<li><b>Homoscedasticity</b> — the spread of errors stays constant across all values (no funnel shape in the residual plot).</li>
+<li><b>Normality of residuals</b> — errors follow a bell curve (matters for confidence intervals).</li>
+<li><b>No autocorrelation</b> — one error doesn't predict the next (often violated in time series).</li>
+</ol>
+<h4>Pros, cons & when to use</h4>
+<p><b>Pros:</b> simple, fast, highly interpretable. <b>Cons:</b> assumes linearity, and a single <b>outlier</b> can drag the whole line toward it (because errors are squared). <b>Use it</b> as your baseline for any regression problem, or when you need to explain exactly how each feature affects the output.</p>
+
+<h2 id="regular">7. Regularization (Ridge & Lasso)</h2>
+<p>Regularization <b>penalizes large weights</b> to prevent overfitting — it forces the model to stay simpler.</p>
+<pre><code>Normal loss:      MSE
+Ridge (L2) loss:  MSE + λ · Σ(wᵢ²)      → shrinks weights toward 0
+Lasso (L1) loss:  MSE + λ · Σ|wᵢ|        → can make weights exactly 0</code></pre>
+<table>
+<tr><th>Type</th><th>Penalty shape</th><th>Effect</th></tr>
+<tr><td><b>Ridge (L2)</b></td><td>Circle (smooth)</td><td>Shrinks all weights, keeps all features</td></tr>
+<tr><td><b>Lasso (L1)</b></td><td>Diamond (corners)</td><td>Zeros out some weights → auto feature selection</td></tr>
+<tr><td><b>Elastic Net</b></td><td>Both</td><td>Combines L1 + L2</td></tr>
+</table>
+<h4>Why does this prevent overfitting?</h4>
+<p>An overfitting model fits the training noise by making some weights very large. By adding a penalty for the size of the weights, we force the model to <b>balance two goals</b>: fit the data (low MSE) AND keep weights small (low penalty). It can no longer blow up a weight just to chase one noisy point, so it stays simpler and generalizes better.</p>
+
+<h4>The λ (lambda) knob</h4>
+<pre><code>λ = 0      → no penalty → same as plain regression (may overfit)
+λ = small  → gentle shrinkage
+λ = large  → heavy shrinkage, weights become tiny (may underfit)
+λ = ∞      → all weights → 0 → model just predicts the average</code></pre>
+<p>λ is a hyperparameter you tune with cross-validation.</p>
+
+<h4>Why does Lasso zero-out weights but Ridge doesn't? (the geometry)</h4>
+<p>Picture the constraint region the penalty creates. Ridge's Σw² forms a smooth <b>circle</b>; Lasso's Σ|w| forms a <b>diamond</b> with sharp corners sitting exactly on the axes. The best solution is where the error contours first touch this region. Because a diamond has corners on the axes, the touch point often lands on an axis — meaning one weight becomes <b>exactly zero</b>. A circle is smooth, so it rarely hits an axis → weights shrink but stay non-zero.</p>
+
+<h4>When to use which</h4>
+<ul>
+<li><b>Ridge (L2)</b> — when you believe most features matter somewhat, and especially when features are correlated (it splits weight between them).</li>
+<li><b>Lasso (L1)</b> — when you have many features and suspect most are irrelevant; it will pick the important ones and discard the rest (automatic feature selection).</li>
+<li><b>Elastic Net</b> — when you have many features AND some are correlated (best of both).</li>
+</ul>
+<div class="analogy"><b>Analogy:</b> Packing a suitcase with a weight limit. Ridge says "pack everything, but lighter." Lasso says "only pack the essentials" — it removes items entirely.</div>
+<div class="tip"><b>Key point:</b> Lasso (L1) does automatic <b>feature selection</b> (drops useless features to zero). Ridge (L2) only shrinks them. λ controls strength — bigger λ = simpler model.</div>
+
+<h2 id="logreg">8. Logistic Regression (+ the sigmoid)</h2>
+<p>Despite the name, it's for <b>classification</b>. It outputs a <b>probability (0 to 1)</b> using the <b>sigmoid function</b>, then applies a threshold (usually 0.5) to decide the class.</p>
+
+<div class="fig">
+<svg viewBox="0 0 460 240" width="460">
+  <line x1="40" y1="120" x2="440" y2="120" stroke="#a7adc4"/>
+  <line x1="240" y1="20" x2="240" y2="220" stroke="#a7adc4"/>
+  <text x="450" y="124" class="txtm">z</text>
+  <text x="248" y="30" class="txtm">1.0</text>
+  <text x="248" y="216" class="txtm">0.0</text>
+  <line x1="40" y1="35" x2="440" y2="35" stroke="#2a2f4a" stroke-dasharray="3"/>
+  <line x1="40" y1="205" x2="440" y2="205" stroke="#2a2f4a" stroke-dasharray="3"/>
+  <!-- sigmoid S curve -->
+  <path d="M40,203 C160,203 200,190 240,120 C280,50 320,37 440,37" fill="none" stroke="#8be0c3" stroke-width="3"/>
+  <text x="330" y="60" class="txt" style="fill:#8be0c3">σ(z) = 1/(1+e⁻ᶻ)</text>
+  <circle cx="240" cy="120" r="4" fill="#ff9ec4"/>
+  <text x="150" y="140" class="txtm" style="fill:#ff9ec4">0.5 threshold</text>
+</svg>
+<div class="cap">The sigmoid squashes any number into a 0–1 probability. Above 0.5 → class 1, below → class 0.</div>
+</div>
+
+<h4>Step by step</h4>
+<ol>
+<li>Compute a linear score just like linear regression: <code>z = w₁x₁ + w₂x₂ + ... + b</code> (this can be any number from −∞ to +∞).</li>
+<li>Squash it into a probability with the sigmoid: <code>σ(z) = 1 / (1 + e⁻ᶻ)</code> → always between 0 and 1.</li>
+<li>Apply a threshold: if σ(z) ≥ 0.5 → class 1, else class 0.</li>
+</ol>
+<pre><code>z = -∞ → σ = 0.00   (definitely class 0)
+z = -2 → σ = 0.12
+z =  0 → σ = 0.50   (totally unsure, 50-50)
+z = +2 → σ = 0.88
+z = +∞ → σ = 1.00   (definitely class 1)</code></pre>
+<p>So σ(z)=0.88 literally means "88% probability this is class 1."</p>
+
+<h4>The threshold is adjustable</h4>
+<p>0.5 is the default, but you can move it. In cancer screening you might use 0.3 — catch more potential cancers (higher recall) at the cost of more false alarms. In lending you tune the threshold based on the business cost of a wrong decision.</p>
+
+<h4>Why Log Loss and not MSE?</h4>
+<p><b>Log Loss (Binary Cross-Entropy):</b> <code>−(1/n) Σ [y·log(ŷ) + (1−y)·log(1−ŷ)]</code></p>
+<p>Two reasons MSE is a bad fit here: (1) MSE combined with the sigmoid produces a <b>non-convex</b> loss surface full of local minima where gradient descent gets stuck; log loss is <b>convex</b> (one global minimum). (2) Log loss <b>heavily punishes confident wrong answers</b> — if the model says "99% spam" but it's not spam, the loss is enormous, giving a strong correction signal.</p>
+
+<h4>Multi-class version</h4>
+<p>For more than 2 classes, use <b>Softmax</b> (multinomial logistic regression), which outputs a probability for each class that all sum to 1 — e.g. [0.7, 0.2, 0.1] → predict class 0.</p>
+
+<h4>Pros, cons & use</h4>
+<p><b>Pros:</b> fast, outputs real probabilities, highly interpretable. <b>Cons:</b> assumes a linear decision boundary (struggles with complex non-linear patterns), sensitive to outliers. Very popular in <b>credit scoring</b> because regulators want to see exactly how each factor influenced the decision.</p>
+
+<h2 id="knn">9. K-Nearest Neighbors (KNN)</h2>
+<p>To classify a new point, look at its <b>K closest neighbors</b> and take a <b>majority vote</b>.</p>
+
+<div class="fig">
+<svg viewBox="0 0 420 240" width="420">
+  <rect x="20" y="20" width="380" height="200" fill="#0c1424" stroke="#2a2f4a"/>
+  <!-- class A blue -->
+  <circle cx="80" cy="70" r="7" fill="#6ea8fe"/><circle cx="110" cy="110" r="7" fill="#6ea8fe"/><circle cx="70" cy="140" r="7" fill="#6ea8fe"/><circle cx="140" cy="80" r="7" fill="#6ea8fe"/>
+  <!-- class B pink -->
+  <circle cx="300" cy="150" r="7" fill="#ff9ec4"/><circle cx="330" cy="110" r="7" fill="#ff9ec4"/><circle cx="290" cy="90" r="7" fill="#ff9ec4"/><circle cx="340" cy="170" r="7" fill="#ff9ec4"/>
+  <!-- new point -->
+  <circle cx="210" cy="120" r="8" fill="#ffcf6e"/>
+  <text x="210" y="145" text-anchor="middle" class="txtm" style="fill:#ffcf6e">new point (?)</text>
+  <!-- K=3 circle -->
+  <circle cx="210" cy="120" r="70" fill="none" stroke="#8be0c3" stroke-dasharray="4"/>
+  <text x="210" y="45" text-anchor="middle" class="txtm" style="fill:#8be0c3">K=3 nearest</text>
+  <!-- connect -->
+  <line x1="210" y1="120" x2="140" y2="80" stroke="#8be0c3" stroke-width="1"/>
+  <line x1="210" y1="120" x2="290" y2="90" stroke="#8be0c3" stroke-width="1"/>
+  <line x1="210" y1="120" x2="300" y2="150" stroke="#8be0c3" stroke-width="1"/>
+</svg>
+<div class="cap">With K=3, the new point looks at its 3 nearest neighbors and takes the majority class.</div>
+</div>
+
+<div class="analogy"><b>Analogy:</b> "You are the average of the people closest to you." If most nearby points are pink, the new point is likely pink.</div>
+
+<h4>How "distance" is measured</h4>
+<ul>
+<li><b>Euclidean</b> — straight-line distance <code>√[(x₁−y₁)² + (x₂−y₂)² + ...]</code>. The default.</li>
+<li><b>Manhattan</b> — sum of absolute differences <code>|x₁−y₁| + |x₂−y₂| + ...</code>. Often better in high dimensions.</li>
+</ul>
+
+<h4>Choosing K — the key decision</h4>
+<pre><code>K = 1      → classify by the single nearest point
+             → super flexible → OVERFITS (noise-sensitive)
+K = large  → averages over many points
+             → over-smooths → UNDERFITS
+K = √n     → common rule-of-thumb starting point</code></pre>
+<p>Tune K with cross-validation, and use an <b>odd</b> K for binary problems to avoid tie votes.</p>
+
+<h4>Two critical gotchas</h4>
+<ul>
+<li><b>Must scale features!</b> If "salary" ranges 0–1,000,000 and "age" ranges 0–100, salary completely dominates the distance. Standardize first so features contribute fairly.</li>
+<li><b>Curse of dimensionality:</b> with many features, all points become roughly equidistant and "nearest" loses meaning. KNN degrades badly — reduce dimensions (PCA) first.</li>
+</ul>
+<p><b>Lazy learner:</b> KNN does no training — it just stores the data. All the work happens at prediction time (computing distance to every point), which makes prediction slow on large datasets.</p>
+
+<h2 id="svm">10. Support Vector Machine (SVM)</h2>
+<p>SVM finds the boundary (hyperplane) that separates classes with the <b>maximum margin</b> — the widest possible gap.</p>
+
+<div class="fig">
+<svg viewBox="0 0 420 240" width="420">
+  <rect x="20" y="20" width="380" height="200" fill="#0c1424" stroke="#2a2f4a"/>
+  <!-- decision boundary -->
+  <line x1="120" y1="220" x2="300" y2="20" stroke="#8be0c3" stroke-width="3"/>
+  <!-- margins -->
+  <line x1="80" y1="220" x2="260" y2="20" stroke="#8be0c3" stroke-width="1.5" stroke-dasharray="5"/>
+  <line x1="160" y1="220" x2="340" y2="20" stroke="#8be0c3" stroke-width="1.5" stroke-dasharray="5"/>
+  <text x="150" y="120" class="txtm" style="fill:#8be0c3" transform="rotate(-48 150,120)">margin</text>
+  <!-- class blue (left) -->
+  <circle cx="70" cy="80" r="7" fill="#6ea8fe"/><circle cx="100" cy="140" r="7" fill="#6ea8fe"/><circle cx="60" cy="180" r="7" fill="#6ea8fe"/>
+  <circle cx="130" cy="110" r="7" fill="#6ea8fe" stroke="#fff" stroke-width="2"/>
+  <!-- class pink (right) -->
+  <circle cx="350" cy="90" r="7" fill="#ff9ec4"/><circle cx="320" cy="150" r="7" fill="#ff9ec4"/><circle cx="360" cy="180" r="7" fill="#ff9ec4"/>
+  <circle cx="290" cy="130" r="7" fill="#ff9ec4" stroke="#fff" stroke-width="2"/>
+  <text x="210" y="235" text-anchor="middle" class="txtm">white-ringed points = support vectors</text>
+</svg>
+<div class="cap">SVM picks the boundary with the widest "street." The closest points (support vectors) define the margin.</div>
+</div>
+
+<div class="analogy"><b>Analogy:</b> Drawing the widest possible street between two neighborhoods so they're separated as clearly as possible.</div>
+
+<h4>Why maximize the margin?</h4>
+<p>A wide margin means the boundary is as far as possible from both classes, so it generalizes better to new points. The few points that sit right on the edge of the margin are called <b>support vectors</b> — they're the only points that actually define the boundary. Move any other point and nothing changes; move a support vector and the boundary shifts.</p>
+
+<h4>The kernel trick (for non-linear data)</h4>
+<p>When classes can't be separated by a straight line, SVM maps the data into a <b>higher dimension</b> where it becomes separable, then draws a flat boundary there (which looks curved back in the original space). The "trick" is that it never actually computes those high-dimensional coordinates — a <b>kernel function</b> computes the needed dot products directly, saving huge computation. The <b>RBF kernel</b> effectively maps to infinite dimensions.</p>
+
+<h4>The C parameter (bias-variance dial)</h4>
+<pre><code>High C → punish every misclassification → narrow margin,
+          fits training tightly → risk of OVERFITTING
+Low C  → tolerate some mistakes → wider margin,
+          better generalization → risk of UNDERFITTING</code></pre>
+<p><b>Pros:</b> works well in high dimensions, effective with clear margins. <b>Cons:</b> slow on large datasets, needs scaling, and picking the right kernel/C requires tuning.</p>
+
+<h2 id="tree">11. Decision Trees</h2>
+<p>A flowchart of yes/no questions that splits the data until reaching a decision.</p>
+
+<div class="fig">
+<svg viewBox="0 0 460 220" width="460">
+  <rect x="180" y="15" width="110" height="34" rx="6" fill="#20263f" stroke="#6ea8fe"/><text x="235" y="36" text-anchor="middle" class="txt">Income &gt; 50k?</text>
+  <rect x="70" y="90" width="110" height="34" rx="6" fill="#20263f" stroke="#6ea8fe"/><text x="125" y="111" text-anchor="middle" class="txt">Age &gt; 30?</text>
+  <rect x="300" y="90" width="110" height="34" rx="6" fill="#2a1320" stroke="#ff9ec4"/><text x="355" y="111" text-anchor="middle" class="txt">Reject</text>
+  <rect x="20" y="165" width="100" height="34" rx="6" fill="#14251f" stroke="#8be0c3"/><text x="70" y="186" text-anchor="middle" class="txt">Approve</text>
+  <rect x="140" y="165" width="100" height="34" rx="6" fill="#2a1320" stroke="#ff9ec4"/><text x="190" y="186" text-anchor="middle" class="txt">Reject</text>
+  <line x1="215" y1="49" x2="140" y2="88" stroke="#8be0c3" stroke-width="2"/><text x="160" y="70" class="txtm" style="fill:#8be0c3">yes</text>
+  <line x1="260" y1="49" x2="345" y2="88" stroke="#ff9ec4" stroke-width="2"/><text x="315" y="70" class="txtm" style="fill:#ff9ec4">no</text>
+  <line x1="105" y1="124" x2="75" y2="163" stroke="#8be0c3" stroke-width="2"/><text x="78" y="147" class="txtm">yes</text>
+  <line x1="150" y1="124" x2="185" y2="163" stroke="#ff9ec4" stroke-width="2"/><text x="182" y="147" class="txtm">no</text>
+</svg>
+<div class="cap">A decision tree splits on the questions that best separate the classes.</div>
+</div>
+
+<h4>How does it choose which question to ask?</h4>
+<p>At each node it tries <b>every feature and every threshold</b>, and picks the split that best separates the classes — i.e., makes the resulting groups as "pure" as possible (ideally all one class). Purity is measured two ways:</p>
+<ul>
+<li><b>Gini impurity</b> = <code>1 − Σ(pᵢ²)</code>. A pure node (all one class) = 0; a 50-50 mix = 0.5 (worst for binary). Lower is better.</li>
+<li><b>Entropy / Information Gain</b> = <code>−Σ(pᵢ·log₂ pᵢ)</code>. Pure node = 0, 50-50 = 1 (max disorder). The tree picks the split with the biggest <b>information gain</b> (drop in entropy).</li>
+</ul>
+<p>Gini and entropy give nearly identical trees; Gini is faster (no logarithm), so it's the common default.</p>
+
+<h4>Trees for regression</h4>
+<p>Same structure, but leaves predict the <b>average</b> of their samples, and splits are chosen to minimize <b>variance</b> in the child nodes instead of Gini.</p>
+
+<h4>Why they overfit & how to control it</h4>
+<p>Left unchecked, a tree grows until every leaf is perfectly pure — meaning it <b>memorizes the training data including noise</b>. Control it with <b>pruning</b>:</p>
+<ul>
+<li><code>max_depth</code> — limit how deep it grows</li>
+<li><code>min_samples_split</code> / <code>min_samples_leaf</code> — require a minimum number of samples to keep splitting</li>
+</ul>
+<p><b>Pros:</b> highly interpretable (you can read the exact decisions), no scaling needed, handles non-linear patterns. <b>Con:</b> high variance — a small change in data can produce a completely different tree. That instability is exactly what ensembles (next) fix.</p>
+
+<h2 id="ensemble">12. Random Forest & Boosting (Ensembles)</h2>
+<p>Combining many models beats a single one — "wisdom of the crowd." Two main strategies:</p>
+
+<div class="fig">
+<svg viewBox="0 0 660 220" width="660">
+  <!-- Bagging -->
+  <text x="160" y="20" text-anchor="middle" class="txt" style="fill:#8be0c3;font-weight:bold">Bagging (Random Forest)</text>
+  <text x="160" y="38" text-anchor="middle" class="txtm">trees in parallel → vote</text>
+  <rect x="60" y="60" width="60" height="34" rx="6" fill="#20263f" stroke="#8be0c3"/><text x="90" y="82" text-anchor="middle" class="txt">Tree 1</text>
+  <rect x="130" y="60" width="60" height="34" rx="6" fill="#20263f" stroke="#8be0c3"/><text x="160" y="82" text-anchor="middle" class="txt">Tree 2</text>
+  <rect x="200" y="60" width="60" height="34" rx="6" fill="#20263f" stroke="#8be0c3"/><text x="230" y="82" text-anchor="middle" class="txt">Tree 3</text>
+  <rect x="110" y="130" width="100" height="34" rx="6" fill="#14251f" stroke="#8be0c3"/><text x="160" y="152" text-anchor="middle" class="txt">Majority vote</text>
+  <line x1="90" y1="94" x2="150" y2="128" stroke="#8be0c3" stroke-width="1.5"/><line x1="160" y1="94" x2="160" y2="128" stroke="#8be0c3" stroke-width="1.5"/><line x1="230" y1="94" x2="170" y2="128" stroke="#8be0c3" stroke-width="1.5"/>
+  <!-- Boosting -->
+  <text x="500" y="20" text-anchor="middle" class="txt" style="fill:#ff9ec4;font-weight:bold">Boosting (XGBoost)</text>
+  <text x="500" y="38" text-anchor="middle" class="txtm">trees in sequence, fix errors</text>
+  <rect x="400" y="70" width="60" height="34" rx="6" fill="#20263f" stroke="#ff9ec4"/><text x="430" y="92" text-anchor="middle" class="txt">Tree 1</text>
+  <rect x="470" y="70" width="60" height="34" rx="6" fill="#20263f" stroke="#ff9ec4"/><text x="500" y="92" text-anchor="middle" class="txt">Tree 2</text>
+  <rect x="540" y="70" width="60" height="34" rx="6" fill="#20263f" stroke="#ff9ec4"/><text x="570" y="92" text-anchor="middle" class="txt">Tree 3</text>
+  <line x1="460" y1="87" x2="470" y2="87" stroke="#ff9ec4" stroke-width="2" marker-end="url(#e)"/>
+  <line x1="530" y1="87" x2="540" y2="87" stroke="#ff9ec4" stroke-width="2" marker-end="url(#e)"/>
+  <text x="500" y="140" text-anchor="middle" class="txtm">each tree corrects the previous one's mistakes</text>
+  <defs><marker id="e" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff9ec4"/></marker></defs>
+</svg>
+<div class="cap">Bagging builds trees independently and averages them; boosting builds them sequentially, each fixing prior errors.</div>
+</div>
+
+<table>
+<tr><th>Method</th><th>How</th><th>Reduces</th><th>Example</th></tr>
+<tr><td><b>Bagging</b></td><td>Parallel trees on random subsets, then vote/average</td><td>Variance</td><td>Random Forest</td></tr>
+<tr><td><b>Boosting</b></td><td>Sequential trees, each fixing prior errors</td><td>Bias</td><td>XGBoost, AdaBoost</td></tr>
+</table>
+<h4>The core requirement: diversity</h4>
+<p>Combining models only helps if they make <b>different</b> errors — if all models make the same mistake, averaging them changes nothing. Both strategies engineer diversity in different ways.</p>
+
+<h4>Random Forest in detail</h4>
+<p>Random Forest = many decision trees + two sources of randomness:</p>
+<ol>
+<li><b>Bootstrap sampling</b> — each tree trains on a random sample of rows (drawn with replacement), so each sees slightly different data.</li>
+<li><b>Random feature subsets</b> — at each split, a tree only considers a random subset of features (√n features for classification). Without this, one strong feature would dominate the first split of every tree, making them all similar.</li>
+</ol>
+<p>Individual trees overfit in different directions; averaging their votes <b>cancels out the noise</b> → much lower variance. Bonus: the ~37% of rows each tree didn't see ("out-of-bag") act as a free validation set, and you get <b>feature importance</b> for free.</p>
+
+<h4>Boosting in detail</h4>
+<p>Boosting builds trees <b>sequentially</b>. It starts with a simple model, sees which samples it got wrong, and trains the next tree to focus on those hard cases. <b>Gradient Boosting</b> does this by fitting each new tree to the <b>residual errors</b> of the current ensemble, adding it with a small <b>learning rate</b> so it corrects gradually.</p>
+<p><b>XGBoost</b> is the optimized champion for tabular data: it adds built-in L1/L2 regularization, smart pruning, parallelization, and native missing-value handling. Powerful, but has many hyperparameters to tune.</p>
+
+<div class="card"><b>Bagging vs Boosting summary:</b>
+<ul>
+<li><b>Bagging</b> (Random Forest): parallel, independent trees → reduces <b>variance</b>. Hard to overfit. Fast.</li>
+<li><b>Boosting</b> (XGBoost): sequential, error-correcting trees → reduces <b>bias</b>. Usually more accurate, but slower and can overfit if over-trained.</li>
+</ul>
+</div>
+
+<h2 id="unsup">13. Clustering & PCA (Unsupervised)</h2>
+
+<h3>13.1 K-Means Clustering</h3>
+<p>Groups data into <b>K clusters</b>: pick K centers → assign each point to nearest center → move centers to the mean of their points → repeat until stable.</p>
+<div class="fig">
+<svg viewBox="0 0 420 220" width="420">
+  <rect x="20" y="15" width="380" height="190" fill="#0c1424" stroke="#2a2f4a"/>
+  <!-- cluster 1 -->
+  <circle cx="80" cy="60" r="6" fill="#6ea8fe"/><circle cx="100" cy="80" r="6" fill="#6ea8fe"/><circle cx="70" cy="90" r="6" fill="#6ea8fe"/><circle cx="110" cy="55" r="6" fill="#6ea8fe"/>
+  <path d="M90,72 m-42,-32 h84 v64 h-84 z" fill="none" stroke="#6ea8fe" stroke-dasharray="3" opacity="0.5"/>
+  <!-- cluster 2 -->
+  <circle cx="300" cy="60" r="6" fill="#8be0c3"/><circle cx="320" cy="85" r="6" fill="#8be0c3"/><circle cx="290" cy="90" r="6" fill="#8be0c3"/><circle cx="330" cy="60" r="6" fill="#8be0c3"/>
+  <!-- cluster 3 -->
+  <circle cx="180" cy="160" r="6" fill="#ff9ec4"/><circle cx="200" cy="175" r="6" fill="#ff9ec4"/><circle cx="220" cy="155" r="6" fill="#ff9ec4"/><circle cx="200" cy="150" r="6" fill="#ff9ec4"/>
+  <!-- centroids -->
+  <path d="M90,72 l-6,-6 l12,0 z" fill="#fff"/><rect x="305" y="68" width="10" height="10" fill="#fff"/><circle cx="200" cy="162" r="5" fill="none" stroke="#fff" stroke-width="2"/>
+  <text x="210" y="200" text-anchor="middle" class="txtm">3 clusters, each with a centroid (white)</text>
+</svg>
+<div class="cap">K-Means groups points around K centroids. Choose K with the "Elbow Method."</div>
+</div>
+
+<h4>K-Means step by step</h4>
+<ol>
+<li>Pick K and place K centroids randomly.</li>
+<li><b>Assign</b> each point to its nearest centroid.</li>
+<li><b>Move</b> each centroid to the average position of its assigned points.</li>
+<li>Repeat steps 2–3 until centroids stop moving (converged).</li>
+</ol>
+<p><b>Choosing K — the Elbow Method:</b> run K-Means for K=1,2,3… and plot the within-cluster error (WCSS). It drops steeply then flattens; the "elbow" bend is a good K. The <b>Silhouette Score</b> (how well-separated clusters are, from −1 to +1) is another way to pick K.</p>
+<p><b>Limitations:</b> must pick K upfront, assumes round equal-sized clusters, sensitive to initialization (fixed by K-Means++) and outliers.</p>
+
+<h3>13.2 PCA (Dimensionality Reduction)</h3>
+<p>PCA <b>compresses many features into fewer</b> while keeping most of the information (variance). It finds new axes (principal components) pointing in the directions of maximum variance, then projects the data onto the top few.</p>
+<div class="analogy"><b>Analogy:</b> Summarizing a 3D object by its most informative 2D shadow — you lose a little detail but keep the essence.</div>
+<p><b>Why use it:</b> speed up training, fight the curse of dimensionality, remove correlated features, and visualize high-dimensional data in 2D/3D. <b>Limitation:</b> the new components are combinations of original features, so they're hard to interpret; it also assumes linear relationships.</p>
+
+<h4>Other clustering methods</h4>
+<ul>
+<li><b>Hierarchical</b> — repeatedly merges the closest clusters into a tree (dendrogram); no need to pre-set K, and you can "cut" the tree at any level. Slow, best for small data.</li>
+<li><b>DBSCAN</b> — density-based: groups points packed closely together and labels lonely points as <b>noise/outliers</b>. Great for irregular shapes and when you don't know K, but struggles with clusters of very different densities.</li>
+</ul>
+
+<h2 id="metrics">14. Model Evaluation Metrics</h2>
+
+<h3>14.1 Regression Metrics</h3>
+<table>
+<tr><th>Metric</th><th>Meaning</th></tr>
+<tr><td><b>MAE</b></td><td>Mean absolute error — average |actual − predicted|. Easy to read.</td></tr>
+<tr><td><b>MSE</b></td><td>Mean squared error — punishes big errors more.</td></tr>
+<tr><td><b>RMSE</b></td><td>√MSE — same units as the target.</td></tr>
+<tr><td><b>R²</b></td><td>% of variance explained (0 to 1, higher is better).</td></tr>
+</table>
+
+<h3>14.2 The Confusion Matrix (foundation of classification metrics)</h3>
+<div class="fig">
+<svg viewBox="0 0 420 220" width="420">
+  <text x="230" y="20" text-anchor="middle" class="txtm">Predicted</text>
+  <text x="255" y="40" text-anchor="middle" class="txtm" style="fill:#8be0c3">Positive</text>
+  <text x="355" y="40" text-anchor="middle" class="txtm" style="fill:#ff9ec4">Negative</text>
+  <text x="30" y="90" text-anchor="middle" class="txtm" transform="rotate(-90 30,140)">Actual</text>
+  <text x="70" y="90" text-anchor="middle" class="txtm" style="fill:#8be0c3">Positive</text>
+  <text x="70" y="170" text-anchor="middle" class="txtm" style="fill:#ff9ec4">Negative</text>
+  <rect x="210" y="55" width="90" height="60" fill="#14251f" stroke="#8be0c3"/><text x="255" y="82" text-anchor="middle" class="txt">TP</text><text x="255" y="100" text-anchor="middle" class="txtm">correct hit</text>
+  <rect x="310" y="55" width="90" height="60" fill="#2a2413" stroke="#ffcf6e"/><text x="355" y="82" text-anchor="middle" class="txt">FN</text><text x="355" y="100" text-anchor="middle" class="txtm">missed</text>
+  <rect x="210" y="115" width="90" height="60" fill="#2a2413" stroke="#ffcf6e"/><text x="255" y="142" text-anchor="middle" class="txt">FP</text><text x="255" y="160" text-anchor="middle" class="txtm">false alarm</text>
+  <rect x="310" y="115" width="90" height="60" fill="#14251f" stroke="#8be0c3"/><text x="355" y="142" text-anchor="middle" class="txt">TN</text><text x="355" y="160" text-anchor="middle" class="txtm">correct reject</text>
+</svg>
+<div class="cap">TP/TN = correct. FP = false alarm (Type I error). FN = missed detection (Type II error).</div>
+</div>
+
+<table>
+<tr><th>Metric</th><th>Formula</th><th>Use when</th></tr>
+<tr><td><b>Accuracy</b></td><td>(TP+TN)/all</td><td>Balanced classes (misleading if imbalanced)</td></tr>
+<tr><td><b>Precision</b></td><td>TP/(TP+FP)</td><td>False positives are costly</td></tr>
+<tr><td><b>Recall</b></td><td>TP/(TP+FN)</td><td>False negatives are costly (fraud, disease)</td></tr>
+<tr><td><b>F1</b></td><td>2·P·R/(P+R)</td><td>Imbalanced data; need balance</td></tr>
+</table>
+<div class="analogy"><b>Precision vs Recall (fishing):</b> Precision = of the fish you caught, how many were the target? Recall = of all target fish in the lake, how many did you catch?</div>
+
+<h4>Worked example — why accuracy lies</h4>
+<pre><code>Fraud dataset: 1000 transactions, only 20 are fraud (2%).
+A lazy model predicts "not fraud" for EVERYTHING.
+  Accuracy = 980/1000 = 98%  ← looks amazing!
+  But: Recall = 0/20 = 0%     ← it caught ZERO frauds. Useless.</code></pre>
+<p>This is why <b>accuracy is misleading on imbalanced data</b>. Precision and recall reveal the truth.</p>
+
+<h4>The precision-recall tradeoff</h4>
+<p>Lowering the decision threshold catches more positives (↑ recall) but also raises false alarms (↓ precision), and vice-versa. You choose based on which error is costlier:</p>
+<ul>
+<li><b>False negative worse</b> (missing a fraud, a disease) → favor <b>recall</b>.</li>
+<li><b>False positive worse</b> (blocking a legit customer, spam-flagging a real email) → favor <b>precision</b>.</li>
+<li>Need balance → use <b>F1</b> (harmonic mean — punishes if either is low).</li>
+</ul>
+<h4>Type I vs Type II errors</h4>
+<p><b>Type I = False Positive</b> ("false alarm" — flagging a healthy person as sick). <b>Type II = False Negative</b> ("missed detection" — telling a sick person they're healthy). In most safety-critical settings, Type II is worse.</p>
+
+<h3>14.3 The ROC Curve & AUC</h3>
+<div class="fig">
+<svg viewBox="0 0 300 260" width="300">
+  <line x1="50" y1="220" x2="270" y2="220" stroke="#a7adc4"/>
+  <line x1="50" y1="30" x2="50" y2="220" stroke="#a7adc4"/>
+  <text x="160" y="250" text-anchor="middle" class="txtm">False Positive Rate →</text>
+  <text x="22" y="125" text-anchor="middle" class="txtm" transform="rotate(-90 22,125)">True Positive Rate →</text>
+  <!-- random line -->
+  <line x1="50" y1="220" x2="270" y2="30" stroke="#a7adc4" stroke-dasharray="5"/>
+  <text x="200" y="150" class="txtm">random (AUC 0.5)</text>
+  <!-- good ROC -->
+  <path d="M50,220 C60,90 120,45 270,32" fill="none" stroke="#8be0c3" stroke-width="3"/>
+  <text x="120" y="70" class="txt" style="fill:#8be0c3">good model</text>
+</svg>
+<div class="cap">ROC plots TPR vs FPR across thresholds. AUC (area under it) = ranking quality. 1.0 = perfect, 0.5 = random guessing.</div>
+</div>
+<div class="tip"><b>Lending example:</b> For rare loan defaults, accuracy is useless (predict "no default" for all = 95% accurate, catches zero). Use <b>recall</b> (catch defaulters), <b>precision</b> (don't reject good customers), and <b>AUC</b>.</div>
+
+<h2 id="gd">15. Gradient Descent (how models learn)</h2>
+<p>Gradient Descent adjusts the model's weights step by step to <b>minimize the loss</b>. It computes the slope (gradient) and steps downhill.</p>
+
+<div class="fig">
+<svg viewBox="0 0 460 250" width="460">
+  <line x1="40" y1="220" x2="440" y2="220" stroke="#a7adc4"/>
+  <line x1="40" y1="20" x2="40" y2="220" stroke="#a7adc4"/>
+  <text x="240" y="245" text-anchor="middle" class="txtm">weight value →</text>
+  <text x="20" y="120" text-anchor="middle" class="txtm" transform="rotate(-90 20,120)">Loss →</text>
+  <!-- loss curve (parabola) -->
+  <path d="M70,40 Q240,320 410,40" fill="none" stroke="#6ea8fe" stroke-width="3"/>
+  <!-- steps down -->
+  <circle cx="110" cy="95" r="7" fill="#ffcf6e"/>
+  <circle cx="150" cy="150" r="7" fill="#ffcf6e" opacity="0.8"/>
+  <circle cx="195" cy="185" r="7" fill="#ffcf6e" opacity="0.7"/>
+  <circle cx="240" cy="200" r="8" fill="#8be0c3"/>
+  <path d="M117,100 L145,145" stroke="#ffcf6e" stroke-width="1.5" marker-end="url(#g)"/>
+  <path d="M157,155 L190,180" stroke="#ffcf6e" stroke-width="1.5" marker-end="url(#g)"/>
+  <path d="M202,188 L235,198" stroke="#ffcf6e" stroke-width="1.5" marker-end="url(#g)"/>
+  <text x="240" y="215" text-anchor="middle" class="txtm" style="fill:#8be0c3">minimum (best weights)</text>
+  <text x="95" y="85" class="txtm" style="fill:#ffcf6e">start</text>
+  <defs><marker id="g" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ffcf6e"/></marker></defs>
+</svg>
+<div class="cap">Gradient descent rolls "downhill" on the loss curve toward the minimum, one step at a time.</div>
+</div>
+
+<div class="analogy"><b>Analogy:</b> Blindfolded on a hill, you feel the slope and step downhill repeatedly until you reach the bottom (lowest loss).</div>
+
+<h4>The update rule</h4>
+<pre><code>new_weight = old_weight − (learning_rate × gradient)</code></pre>
+<p>The <b>gradient</b> is the slope of the loss with respect to a weight — it points in the direction that <b>increases</b> loss, so we step the opposite way (hence the minus sign). We repeat this for every weight, over and over, until the loss stops decreasing.</p>
+
+<h4>The learning rate is the most important setting</h4>
+<pre><code>Too big  → overshoots the minimum, bounces around, may diverge
+Too small → takes tiny steps, painfully slow, may get stuck
+Just right → smooth, efficient descent to the minimum</code></pre>
+
+<h4>Three flavors (how much data per step)</h4>
+<table>
+<tr><th>Type</th><th>Data per update</th><th>Tradeoff</th></tr>
+<tr><td><b>Batch GD</b></td><td>ALL data</td><td>Accurate, stable, but slow</td></tr>
+<tr><td><b>Stochastic (SGD)</b></td><td>1 sample</td><td>Fast, but noisy/zig-zags</td></tr>
+<tr><td><b>Mini-batch</b></td><td>Small batch (32–256)</td><td>Best of both — the standard</td></tr>
+</table>
+<p>Terms: an <b>epoch</b> = one full pass through all the data; an <b>iteration</b> = one weight update (one batch).</p>
+
+<h2 id="qa">16. Interview Q&A</h2>
+<div class="qa"><b>Q: Supervised vs unsupervised?</b><br>Supervised uses labeled data to predict outputs; unsupervised finds patterns in unlabeled data.</div>
+<div class="qa"><b>Q: Overfitting and how to fix it?</b><br>Model memorizes training data and fails on new data. Fix with more data, simpler models, regularization, cross-validation, dropout, fewer features.</div>
+<div class="qa"><b>Q: Bias-variance tradeoff?</b><br>Bias = too-simple (underfit). Variance = too-complex (overfit). Balance both to minimize total error.</div>
+<div class="qa"><b>Q: Precision vs recall?</b><br>Precision matters when false positives are costly; recall when false negatives are costly (fraud, disease).</div>
+<div class="qa"><b>Q: Ridge vs Lasso?</b><br>Ridge (L2) shrinks weights toward zero; Lasso (L1) can zero them out → automatic feature selection.</div>
+<div class="qa"><b>Q: Random Forest vs Gradient Boosting?</b><br>RF = parallel trees averaged (bagging, reduces variance). GB = sequential trees fixing errors (reduces bias, usually more accurate but slower).</div>
+<div class="qa"><b>Q: Why does logistic regression use log loss, not MSE?</b><br>MSE + sigmoid is non-convex (gradient descent gets stuck). Log loss is convex and penalizes confident wrong answers.</div>
+<div class="qa"><b>Q: How to handle imbalanced data?</b><br>Resampling (SMOTE), class weights, right metrics (F1/AUC/recall not accuracy), threshold tuning.</div>
+<div class="qa"><b>Q: When do you NOT need feature scaling?</b><br>Tree-based models (Decision Tree, Random Forest, XGBoost) — they split on thresholds, not distances.</div>
+<div class="qa"><b>Q: What is cross-validation?</b><br>Split data into K folds, test on each in turn, average — a more reliable performance estimate than one split.</div>
+
+<hr>
+<p class="sub">Focus on bias-variance, the tree family (Tree → Random Forest → XGBoost), the sigmoid/logistic idea, and classification metrics — these dominate interviews. 🚀</p>
+
+</div>
+</body>
+</html>
